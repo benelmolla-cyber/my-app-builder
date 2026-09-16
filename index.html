@@ -1,1160 +1,2421 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="BuildPro AI - AI Website and App Builder" />
-  <meta name="theme-color" content="#09090b" />
-  <title>BuildPro AI</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b0b0c">
+<meta name="description" content="BuildPro AI — Build websites and web apps by chatting with AI.">
+<title>BuildPro AI</title>
 
-  <script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root {
+  --bg: #0b0b0c;
+  --panel: #111113;
+  --panel2: #171719;
+  --panel3: #1d1d20;
+  --border: rgba(255,255,255,.09);
+  --border2: rgba(255,255,255,.14);
+  --text: #f7f7f8;
+  --muted: #929297;
+  --muted2: #66666d;
+  --purple: #a855f7;
+  --purple2: #7c3aed;
+  --purple-soft: rgba(168,85,247,.12);
+  --green: #4ade80;
+  --yellow: #fbbf24;
+  --red: #fb7185;
+}
 
-  <script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              400: "#a78bfa",
-              500: "#8b5cf6",
-              600: "#7c3aed"
-            }
-          }
-        }
-      }
-    };
-  </script>
+* {
+  box-sizing: border-box;
+}
 
-  <style>
-    * {
-      box-sizing: border-box;
-      scrollbar-width: thin;
-      scrollbar-color: #3f3f46 transparent;
-    }
+html {
+  width: 100%;
+  height: 100%;
+}
 
-    html, body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-    }
+body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    Inter,
+    ui-sans-serif,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
 
-    body {
-      background:
-        radial-gradient(circle at 10% 0%, rgba(124,58,237,.15), transparent 30%),
-        radial-gradient(circle at 90% 15%, rgba(37,99,235,.08), transparent 25%),
-        #09090b;
-    }
+button,
+textarea,
+input {
+  font: inherit;
+}
 
-    .glass {
-      background: rgba(24,24,27,.78);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-    }
+button {
+  color: inherit;
+}
 
-    .grid-bg {
-      background-image:
-        linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
-      background-size: 32px 32px;
-    }
+button:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid rgba(168,85,247,.7);
+  outline-offset: 2px;
+}
 
-    .modal-bg {
-      background: rgba(0,0,0,.75);
-      backdrop-filter: blur(9px);
-    }
+.hidden {
+  display: none !important;
+}
 
-    .dot {
-      animation: bounceDot 1s infinite ease-in-out;
-    }
+/* ============================================================
+   HOME
+============================================================ */
 
-    .dot:nth-child(2) {
-      animation-delay: .15s;
-    }
+#homeScreen {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
 
-    .dot:nth-child(3) {
-      animation-delay: .3s;
-    }
+.home-glow {
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  left: 50%;
+  top: 18%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    rgba(124,58,237,.09),
+    rgba(124,58,237,.02) 38%,
+    transparent 68%
+  );
+  pointer-events: none;
+}
 
-    @keyframes bounceDot {
-      0%, 100% {
-        opacity: .25;
-        transform: translateY(0);
-      }
+.home-nav {
+  width: 100%;
+  height: 82px;
+  padding:
+    max(18px, env(safe-area-inset-top))
+    clamp(20px, 5vw, 72px)
+    0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  z-index: 10;
+}
 
-      50% {
-        opacity: 1;
-        transform: translateY(-3px);
-      }
-    }
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -.04em;
+  user-select: none;
+}
 
-    .message-enter {
-      animation: messageEnter .25s ease-out;
-    }
+.brand-mark {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 0 22px rgba(255,255,255,.18);
+}
 
-    @keyframes messageEnter {
-      from {
-        opacity: 0;
-        transform: translateY(5px);
-      }
+.brand-ai {
+  color: #b76cff;
+}
 
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+.home-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
 
-    #preview {
-      transition: width .3s ease;
-    }
+.nav-link {
+  border: 0;
+  background: transparent;
+  color: #b0b0b5;
+  cursor: pointer;
+  padding: 10px 12px;
+  border-radius: 12px;
+  transition: .2s ease;
+}
 
-    @media (max-width: 1023px) {
-      body {
-        overflow: auto !important;
-      }
-    }
-  </style>
+.nav-link:hover {
+  color: white;
+  background: rgba(255,255,255,.05);
+}
+
+.avatar {
+  width: 43px;
+  height: 43px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 50%;
+  background:
+    linear-gradient(145deg,#b45cff,#7133d5);
+  display: grid;
+  place-items: center;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.15);
+}
+
+.menu-btn {
+  width: 43px;
+  height: 43px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: #151517;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: .2s;
+}
+
+.menu-btn:hover {
+  background: #1d1d20;
+  border-color: var(--border2);
+}
+
+.menu-lines {
+  width: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.menu-lines span {
+  height: 1.5px;
+  background: #aaaab0;
+  border-radius: 10px;
+}
+
+.home-main {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding:
+    clamp(65px, 10vh, 120px)
+    20px
+    70px;
+  position: relative;
+  z-index: 2;
+}
+
+.home-content {
+  width: min(820px, 100%);
+  text-align: center;
+}
+
+.hero-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #a7a7ad;
+  font-size: 13px;
+  margin-bottom: 26px;
+}
+
+.hero-label-dot {
+  width: 7px;
+  height: 7px;
+  background: #a855f7;
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgba(168,85,247,.7);
+}
+
+.hero-title {
+  margin: 0;
+  font-size: clamp(58px, 9vw, 104px);
+  line-height: .91;
+  letter-spacing: -.075em;
+  font-weight: 650;
+}
+
+.hero-title .accent-line {
+  display: block;
+  color: #8b8b91;
+  position: relative;
+}
+
+.changing-word {
+  display: inline-block;
+  color: #b76cff;
+  min-width: 2ch;
+  transition:
+    opacity .25s ease,
+    transform .25s ease,
+    filter .25s ease;
+}
+
+.changing-word.switching {
+  opacity: 0;
+  transform: translateY(8px);
+  filter: blur(8px);
+}
+
+.hero-description {
+  width: min(620px, 100%);
+  margin: 38px auto 0;
+  color: #8b8b91;
+  font-size: clamp(17px, 2.2vw, 22px);
+  line-height: 1.55;
+  letter-spacing: -.02em;
+}
+
+/* Prompt */
+
+.home-composer-wrap {
+  width: min(720px, 100%);
+  margin: 48px auto 0;
+}
+
+.home-composer {
+  width: 100%;
+  min-height: 148px;
+  background: #171719;
+  border: 1px solid rgba(255,255,255,.105);
+  border-radius: 30px;
+  padding: 22px;
+  text-align: left;
+  box-shadow:
+    0 24px 80px rgba(0,0,0,.28),
+    inset 0 1px 0 rgba(255,255,255,.025);
+  transition:
+    border-color .2s ease,
+    box-shadow .2s ease,
+    transform .2s ease;
+}
+
+.home-composer:focus-within {
+  border-color: rgba(168,85,247,.42);
+  box-shadow:
+    0 28px 90px rgba(0,0,0,.35),
+    0 0 0 4px rgba(168,85,247,.05);
+}
+
+#homePrompt {
+  display: block;
+  width: 100%;
+  min-height: 68px;
+  resize: none;
+  border: 0;
+  outline: 0;
+  color: white;
+  background: transparent;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+#homePrompt::placeholder {
+  color: #727278;
+}
+
+.composer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.composer-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.circle-tool {
+  width: 39px;
+  height: 39px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: #202023;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: #aaaab0;
+  font-size: 19px;
+  transition: .2s;
+}
+
+.circle-tool:hover {
+  background: #29292d;
+  color: white;
+}
+
+.platform-pill {
+  height: 39px;
+  border: 1px solid var(--border);
+  background: #202023;
+  border-radius: 22px;
+  color: #aaaab0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  font-size: 13px;
+}
+
+.generate-home-btn {
+  height: 42px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 21px;
+  background: white;
+  color: #0b0b0c;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  transition: .2s ease;
+}
+
+.generate-home-btn:hover {
+  transform: translateY(-1px);
+  background: #ececef;
+}
+
+.generate-home-btn:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.suggestions {
+  margin-top: 28px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.suggestion {
+  border: 1px solid var(--border);
+  background: #19191b;
+  color: #b0b0b5;
+  padding: 11px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: .2s;
+}
+
+.suggestion:hover {
+  color: white;
+  border-color: rgba(255,255,255,.17);
+  background: #212124;
+  transform: translateY(-1px);
+}
+
+.suggestion-icon {
+  margin-right: 7px;
+}
+
+.home-note {
+  color: #515157;
+  margin-top: 24px;
+  font-size: 12px;
+}
+
+/* ============================================================
+   BUILDER
+============================================================ */
+
+#builderScreen {
+  height: 100svh;
+  background: #09090b;
+  display: flex;
+  flex-direction: column;
+}
+
+.builder-nav {
+  height: 62px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  background: rgba(11,11,12,.94);
+}
+
+.builder-nav-left,
+.builder-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.builder-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-weight: 750;
+  letter-spacing: -.035em;
+}
+
+.builder-logo {
+  width: 27px;
+  height: 27px;
+  border-radius: 9px;
+  background: linear-gradient(145deg,#b65cff,#6d28d9);
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.project-title {
+  color: #7f7f85;
+  font-size: 13px;
+  margin-left: 8px;
+}
+
+.top-btn {
+  border: 1px solid var(--border);
+  background: #151517;
+  color: #b4b4b9;
+  border-radius: 9px;
+  padding: 8px 11px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: .2s;
+}
+
+.top-btn:hover {
+  color: white;
+  background: #1c1c1f;
+}
+
+.publish-btn {
+  background: white;
+  color: #0b0b0c;
+  border-color: white;
+  font-weight: 700;
+}
+
+.publish-btn:hover {
+  color: #0b0b0c;
+  background: #e9e9eb;
+}
+
+.builder-layout {
+  min-height: 0;
+  flex: 1;
+  display: grid;
+  grid-template-columns: 390px minmax(0,1fr);
+}
+
+/* Chat */
+
+.chat-panel {
+  min-height: 0;
+  border-right: 1px solid var(--border);
+  background: #0d0d0f;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-header {
+  height: 58px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+  padding: 0 17px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chat-header-title {
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.status-pill {
+  font-size: 10px;
+  color: #75d99a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-pill span {
+  width: 6px;
+  height: 6px;
+  background: #4ade80;
+  border-radius: 50%;
+}
+
+#chatMessages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 18px;
+}
+
+.message {
+  margin-bottom: 20px;
+  animation: fadeMessage .25s ease;
+}
+
+@keyframes fadeMessage {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.user-message {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.user-bubble {
+  max-width: 86%;
+  background: #242429;
+  border: 1px solid var(--border);
+  border-radius: 17px 17px 5px 17px;
+  padding: 11px 13px;
+  color: #e9e9eb;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.ai-message {
+  display: flex;
+  gap: 10px;
+}
+
+.ai-icon {
+  width: 27px;
+  height: 27px;
+  flex: 0 0 auto;
+  border-radius: 8px;
+  background: var(--purple-soft);
+  border: 1px solid rgba(168,85,247,.16);
+  color: #bd7cff;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.ai-content {
+  color: #b0b0b5;
+  font-size: 13px;
+  line-height: 1.6;
+  padding-top: 3px;
+}
+
+.builder-composer-wrap {
+  padding: 12px;
+  border-top: 1px solid var(--border);
+  background: #0d0d0f;
+}
+
+.builder-composer {
+  border: 1px solid var(--border2);
+  background: #161618;
+  border-radius: 17px;
+  padding: 12px;
+}
+
+#builderPrompt {
+  width: 100%;
+  min-height: 55px;
+  max-height: 140px;
+  resize: none;
+  outline: 0;
+  border: 0;
+  background: transparent;
+  color: white;
+  line-height: 1.45;
+  font-size: 13px;
+}
+
+#builderPrompt::placeholder {
+  color: #626269;
+}
+
+.builder-composer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 7px;
+}
+
+.builder-hint {
+  color: #55555b;
+  font-size: 10px;
+}
+
+.builder-send {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 0;
+  background: #8b5cf6;
+  color: white;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: .2s;
+}
+
+.builder-send:hover {
+  background: #a16cf5;
+}
+
+.builder-send:disabled {
+  opacity: .45;
+  cursor: wait;
+}
+
+/* Preview */
+
+.preview-panel {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #111113;
+}
+
+.preview-toolbar {
+  height: 58px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+}
+
+.browser-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.browser-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.browser-dot.red { background: #f87171; }
+.browser-dot.yellow { background: #fbbf24; }
+.browser-dot.green { background: #4ade80; }
+
+.device-controls {
+  background: #19191c;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 3px;
+  display: flex;
+}
+
+.device-btn {
+  border: 0;
+  color: #77777d;
+  background: transparent;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.device-btn.active {
+  color: white;
+  background: #29292d;
+}
+
+.preview-stage {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+  background:
+    radial-gradient(circle at center, rgba(255,255,255,.018), transparent 50%),
+    #111113;
+}
+
+.preview-shell {
+  width: 100%;
+  height: 100%;
+  min-height: 600px;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 25px 70px rgba(0,0,0,.35);
+  transition: width .3s ease;
+}
+
+.preview-shell.mobile {
+  width: 390px;
+  flex-shrink: 0;
+}
+
+#previewFrame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: white;
+}
+
+.preview-status {
+  height: 31px;
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+  color: #55555b;
+  font-size: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 14px;
+}
+
+/* ============================================================
+   MODALS
+============================================================ */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0,0,0,.76);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-card {
+  width: min(500px,100%);
+  background: #121214;
+  border: 1px solid var(--border2);
+  border-radius: 24px;
+  box-shadow: 0 40px 120px rgba(0,0,0,.55);
+  overflow: hidden;
+}
+
+.modal-large {
+  width: min(1000px,100%);
+  height: min(760px,88vh);
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  padding: 20px 22px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.modal-title {
+  font-weight: 700;
+  letter-spacing: -.03em;
+}
+
+.modal-subtitle {
+  color: #6d6d73;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.close-btn {
+  border: 0;
+  background: transparent;
+  color: #77777d;
+  cursor: pointer;
+  font-size: 22px;
+}
+
+.modal-body {
+  padding: 22px;
+}
+
+.code-area {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 20px;
+  color: #c5c5ca;
+  background: #0b0b0c;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.pro-badge {
+  display: inline-flex;
+  padding: 6px 9px;
+  border-radius: 999px;
+  color: #c892ff;
+  background: rgba(168,85,247,.1);
+  border: 1px solid rgba(168,85,247,.17);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.price {
+  margin-top: 22px;
+  font-size: 48px;
+  font-weight: 750;
+  letter-spacing: -.06em;
+}
+
+.price span {
+  color: #737379;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: normal;
+}
+
+.features {
+  margin: 22px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.features li {
+  color: #aaaab0;
+  font-size: 13px;
+  padding: 8px 0;
+}
+
+.primary-full {
+  width: 100%;
+  border: 0;
+  border-radius: 13px;
+  background: white;
+  color: #09090b;
+  padding: 14px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.export-option {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: #18181a;
+  color: white;
+  padding: 16px;
+  border-radius: 14px;
+  text-align: left;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.export-option:hover {
+  background: #202023;
+  border-color: var(--border2);
+}
+
+.export-option strong {
+  display: block;
+  font-size: 13px;
+}
+
+.export-option small {
+  display: block;
+  margin-top: 5px;
+  color: #74747a;
+}
+
+/* ============================================================
+   MENU
+============================================================ */
+
+.menu-popover {
+  position: fixed;
+  z-index: 90;
+  right: 30px;
+  top: 74px;
+  width: 220px;
+  background: #161618;
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 7px;
+  box-shadow: 0 25px 80px rgba(0,0,0,.45);
+}
+
+.menu-item {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #aaaab0;
+  border-radius: 10px;
+  text-align: left;
+  padding: 11px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.menu-item:hover {
+  background: #222225;
+  color: white;
+}
+
+/* Loading */
+
+.loader-dots {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.loader-dots span {
+  width: 4px;
+  height: 4px;
+  background: currentColor;
+  border-radius: 50%;
+  animation: dotPulse 1s infinite;
+}
+
+.loader-dots span:nth-child(2) {
+  animation-delay: .15s;
+}
+
+.loader-dots span:nth-child(3) {
+  animation-delay: .3s;
+}
+
+@keyframes dotPulse {
+  0%,100% {
+    opacity: .25;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width: 760px) {
+  .home-nav {
+    height: 72px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .nav-link {
+    display: none;
+  }
+
+  .brand {
+    font-size: 18px;
+  }
+
+  .avatar,
+  .menu-btn {
+    width: 39px;
+    height: 39px;
+  }
+
+  .home-main {
+    padding-top: clamp(70px, 11vh, 110px);
+    padding-bottom: 35px;
+  }
+
+  .hero-label {
+    margin-bottom: 23px;
+  }
+
+  .hero-title {
+    font-size: clamp(58px, 18vw, 80px);
+    line-height: .92;
+  }
+
+  .hero-description {
+    margin-top: 31px;
+    padding: 0 8px;
+    font-size: 18px;
+  }
+
+  .home-composer-wrap {
+    margin-top: 42px;
+  }
+
+  .home-composer {
+    min-height: 150px;
+    border-radius: 28px;
+    padding: 19px;
+  }
+
+  #homePrompt {
+    font-size: 17px;
+  }
+
+  .platform-pill {
+    display: none;
+  }
+
+  .generate-home-btn {
+    width: 42px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .generate-home-btn span.text {
+    display: none;
+  }
+
+  .suggestions {
+    margin-top: 24px;
+    gap: 8px;
+  }
+
+  .suggestion {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  .builder-nav {
+    padding: 0 10px;
+  }
+
+  .project-title {
+    display: none;
+  }
+
+  .builder-nav-right .top-btn:nth-child(1) {
+    display: none;
+  }
+
+  .builder-layout {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chat-panel {
+    height: 42%;
+    min-height: 300px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .preview-panel {
+    height: 58%;
+    min-height: 400px;
+  }
+
+  .preview-stage {
+    padding: 8px;
+  }
+
+  .preview-shell {
+    min-height: 500px;
+  }
+
+  .preview-shell.mobile {
+    width: 100%;
+  }
+
+  .preview-status {
+    display: none;
+  }
+
+  .menu-popover {
+    right: 18px;
+    top: 65px;
+  }
+}
+</style>
 </head>
 
-<body class="text-zinc-100 antialiased overflow-hidden">
+<body>
 
-  <div class="min-h-screen lg:h-screen flex flex-col">
+<!-- ==========================================================
+     HOME SCREEN
+========================================================== -->
 
-    <!-- TOP NAVIGATION -->
-    <header class="h-16 shrink-0 border-b border-zinc-800 glass">
-      <div class="h-full px-4 lg:px-6 flex items-center justify-between">
+<section id="homeScreen">
 
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center font-black shadow-lg">
-            B
-          </div>
+  <div class="home-glow"></div>
 
-          <div>
-            <div class="font-bold tracking-tight">
-              BuildPro <span class="text-violet-400">AI</span>
-            </div>
+  <nav class="home-nav">
 
-            <div class="text-[9px] uppercase tracking-[.2em] text-zinc-600">
-              AI App Builder
-            </div>
-          </div>
-        </div>
+    <div class="brand">
+      <span class="brand-mark"></span>
+      <span>BuildPro</span>
+      <span class="brand-ai">AI</span>
+    </div>
 
-        <div class="hidden md:flex items-center gap-2 text-xs text-zinc-500">
-          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-          AI Builder Online
-        </div>
+    <div class="home-nav-right">
 
-        <div class="flex items-center gap-2">
+      <button class="nav-link" id="projectsBtn">
+        Projects
+      </button>
 
-          <button
-            id="upgradeButton"
-            type="button"
-            class="hidden sm:block px-3 py-2 rounded-lg border border-violet-500/30 bg-violet-500/10 text-violet-300 text-xs hover:bg-violet-500/20 transition"
-          >
-            Upgrade Pro
-          </button>
+      <button class="nav-link" id="homeUpgradeBtn">
+        Pro
+      </button>
 
-          <div class="px-3 py-2 rounded-lg border border-zinc-800 bg-zinc-900 text-xs">
-            <span class="text-zinc-500">Credits</span>
-            <strong id="creditDisplay" class="ml-1">10</strong>
-          </div>
+      <button class="avatar" aria-label="Account">
+        B
+      </button>
 
-          <div class="w-9 h-9 rounded-full border border-zinc-700 bg-zinc-800 flex items-center justify-center text-xs font-bold">
-            BP
-          </div>
+      <button
+        class="menu-btn"
+        id="menuButton"
+        aria-label="Open menu"
+      >
+        <span class="menu-lines">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+      </button>
 
-        </div>
+    </div>
+
+  </nav>
+
+
+  <main class="home-main">
+
+    <div class="home-content">
+
+      <div class="hero-label">
+        <span class="hero-label-dot"></span>
+        Build websites and apps with AI
       </div>
-    </header>
 
-    <!-- MAIN WORKSPACE -->
-    <main class="flex-1 min-h-0 p-3 grid-bg">
+      <h1 class="hero-title">
+        Build the
+        <span class="accent-line">
+          next <span id="changingWord" class="changing-word">idea.</span>
+        </span>
+      </h1>
 
-      <div class="h-full grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-3">
+      <p class="hero-description">
+        Turn an idea into a beautiful website or web app
+        by simply describing what you want to build.
+      </p>
 
-        <!-- LEFT BUILDER -->
-        <section class="min-h-[600px] lg:min-h-0 rounded-2xl border border-zinc-800 bg-zinc-950/90 flex flex-col overflow-hidden">
 
-          <div class="p-4 border-b border-zinc-800 flex justify-between items-center">
+      <div class="home-composer-wrap">
 
-            <div>
-              <h1 class="font-semibold">
-                Build with AI
-              </h1>
+        <form id="homeForm" class="home-composer">
 
-              <p class="text-xs text-zinc-500 mt-1">
-                Describe what you want to create.
-              </p>
+          <textarea
+            id="homePrompt"
+            maxlength="3000"
+            placeholder="Describe the website or app you want to build..."
+            aria-label="Describe what you want to build"
+          ></textarea>
+
+          <div class="composer-bottom">
+
+            <div class="composer-tools">
+
+              <button
+                type="button"
+                class="circle-tool"
+                title="Add"
+              >
+                +
+              </button>
+
+              <div class="platform-pill">
+                ◇ Web App
+                <span style="font-size:10px">⌄</span>
+              </div>
+
             </div>
 
             <button
-              id="newProjectButton"
-              type="button"
-              class="px-3 py-1.5 text-xs border border-zinc-800 rounded-lg hover:bg-zinc-900 transition"
+              type="submit"
+              class="generate-home-btn"
+              id="homeGenerateBtn"
             >
-              + New
+              <span class="text">Build it</span>
+              <span>↑</span>
             </button>
 
           </div>
 
-          <!-- CHAT -->
-          <div id="chat" class="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
+        </form>
 
-            <div class="flex gap-3">
 
-              <div class="w-8 h-8 shrink-0 rounded-lg bg-violet-500/15 border border-violet-500/20 flex items-center justify-center text-xs text-violet-400">
-                AI
-              </div>
-
-              <div>
-                <div class="text-xs text-zinc-500 mb-1">
-                  BuildPro AI
-                </div>
-
-                <p class="text-sm text-zinc-300 leading-6 m-0">
-                  Tell me what you want to build. I'll generate the website and show it instantly in the live preview.
-                </p>
-              </div>
-
-            </div>
-
-            <div id="examples" class="space-y-2 pt-2">
-
-              <div class="text-[10px] uppercase tracking-widest text-zinc-600">
-                Try an example
-              </div>
-
-              <button
-                type="button"
-                class="example w-full text-left p-3 rounded-xl border border-zinc-800 text-xs text-zinc-400 hover:border-violet-500/40 hover:bg-violet-500/5 transition"
-                data-prompt="Create a beautiful premium coffee shop landing page called Ember & Bean"
-              >
-                ☕ Premium coffee shop
-              </button>
-
-              <button
-                type="button"
-                class="example w-full text-left p-3 rounded-xl border border-zinc-800 text-xs text-zinc-400 hover:border-violet-500/40 hover:bg-violet-500/5 transition"
-                data-prompt="Build a modern AI SaaS landing page called Vectorly"
-              >
-                ✦ AI SaaS startup
-              </button>
-
-              <button
-                type="button"
-                class="example w-full text-left p-3 rounded-xl border border-zinc-800 text-xs text-zinc-400 hover:border-violet-500/40 hover:bg-violet-500/5 transition"
-                data-prompt="Create a professional portfolio website for a product designer called Alex Morgan"
-              >
-                ◇ Designer portfolio
-              </button>
-
-              <button
-                type="button"
-                class="example w-full text-left p-3 rounded-xl border border-zinc-800 text-xs text-zinc-400 hover:border-violet-500/40 hover:bg-violet-500/5 transition"
-                data-prompt="Create a modern ecommerce store called Nova Store"
-              >
-                🛍 E-commerce store
-              </button>
-
-            </div>
-
-          </div>
-
-          <!-- PROMPT -->
-          <form id="promptForm" class="p-4 border-t border-zinc-800">
-
-            <div class="rounded-2xl border border-zinc-700 bg-zinc-900 focus-within:border-violet-500 transition">
-
-              <textarea
-                id="prompt"
-                maxlength="3000"
-                rows="4"
-                placeholder="Example: Build me a premium SaaS landing page..."
-                class="w-full resize-none bg-transparent outline-none p-4 pb-2 text-sm placeholder:text-zinc-600"
-              ></textarea>
-
-              <div class="px-3 pb-3 flex items-center justify-between">
-
-                <span id="charCount" class="text-[10px] text-zinc-600">
-                  0 / 3000
-                </span>
-
-                <button
-                  id="generateButton"
-                  type="submit"
-                  class="px-5 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-semibold transition"
-                >
-                  <span id="generateText">
-                    Generate
-                  </span>
-
-                  <span id="loadingDots" class="hidden">
-                    <span class="dot inline-block w-1.5 h-1.5 rounded-full bg-white"></span>
-                    <span class="dot inline-block w-1.5 h-1.5 rounded-full bg-white"></span>
-                    <span class="dot inline-block w-1.5 h-1.5 rounded-full bg-white"></span>
-                  </span>
-                </button>
-
-              </div>
-            </div>
-
-            <p class="text-[10px] text-zinc-600 mt-2">
-              Ctrl/Cmd + Enter to generate
-            </p>
-
-          </form>
-
-        </section>
-
-        <!-- RIGHT PREVIEW -->
-        <section class="min-h-[700px] lg:min-h-0 rounded-2xl border border-zinc-800 bg-zinc-950 flex flex-col overflow-hidden">
-
-          <div class="h-14 shrink-0 px-4 border-b border-zinc-800 flex items-center justify-between">
-
-            <div class="flex items-center gap-3">
-
-              <div class="flex gap-1.5">
-                <span class="w-2.5 h-2.5 rounded-full bg-red-400"></span>
-                <span class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
-                <span class="w-2.5 h-2.5 rounded-full bg-green-400"></span>
-              </div>
-
-              <span id="projectName" class="hidden sm:inline text-xs text-zinc-500">
-                Untitled project
-              </span>
-
-            </div>
-
-            <div class="flex items-center gap-2">
-
-              <button
-                id="desktopButton"
-                type="button"
-                class="hidden md:block px-3 py-1.5 rounded-lg bg-zinc-800 text-xs"
-              >
-                Desktop
-              </button>
-
-              <button
-                id="mobileButton"
-                type="button"
-                class="hidden md:block px-3 py-1.5 rounded-lg text-zinc-500 text-xs hover:bg-zinc-900"
-              >
-                Mobile
-              </button>
-
-              <button
-                id="codeButton"
-                type="button"
-                class="px-3 py-1.5 rounded-lg border border-zinc-800 text-xs hover:bg-zinc-900"
-              >
-                &lt;/&gt; Code
-              </button>
-
-              <button
-                id="publishButton"
-                type="button"
-                class="px-3 py-1.5 rounded-lg bg-white text-black font-semibold text-xs hover:bg-zinc-200"
-              >
-                Publish
-              </button>
-
-            </div>
-          </div>
-
-          <!-- URL BAR -->
-          <div class="h-10 shrink-0 px-4 border-b border-zinc-800 flex items-center justify-center">
-
-            <div class="w-full max-w-lg px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-[10px] text-zinc-600">
-              🔒
-              <span id="previewAddress">
-                preview.buildpro.ai
-              </span>
-            </div>
-
-          </div>
-
-          <!-- PREVIEW -->
-          <div class="flex-1 min-h-0 overflow-auto bg-zinc-900 p-4 flex justify-center">
-
-            <div id="emptyPreview" class="m-auto text-center max-w-sm">
-
-              <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-2xl">
-                ✦
-              </div>
-
-              <h2 class="font-semibold">
-                Your creation appears here
-              </h2>
-
-              <p class="text-sm text-zinc-500 leading-6 mt-2">
-                Describe your website on the left and BuildPro AI will generate a live working preview.
-              </p>
-
-            </div>
-
-            <iframe
-              id="preview"
-              title="BuildPro AI Preview"
-              sandbox="allow-scripts allow-forms"
-              class="hidden preview-frame bg-white border-0 rounded-lg shadow-2xl"
-              style="width:100%;height:100%;min-height:650px"
-            ></iframe>
-
-          </div>
-
-          <!-- STATUS -->
-          <div class="h-9 shrink-0 border-t border-zinc-800 px-4 flex items-center justify-between text-[10px] text-zinc-600">
-
-            <span id="status">
-              Ready
-            </span>
-
-            <span>
-              BuildPro Preview Engine
-            </span>
-
-          </div>
-
-        </section>
-
-      </div>
-    </main>
-  </div>
-
-  <!-- CODE MODAL -->
-  <div id="codeModal" class="modal-bg hidden fixed inset-0 z-50 p-4 items-center justify-center">
-
-    <div class="w-full max-w-5xl h-[85vh] bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden flex flex-col">
-
-      <div class="h-14 shrink-0 px-5 border-b border-zinc-800 flex items-center justify-between">
-
-        <div>
-          <div class="font-semibold text-sm">
-            Generated Source Code
-          </div>
-
-          <div class="text-[10px] text-zinc-600">
-            Complete HTML
-          </div>
-        </div>
-
-        <div class="flex gap-2">
+        <div class="suggestions">
 
           <button
-            id="copyCodeButton"
-            type="button"
-            class="px-3 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-xs"
+            class="suggestion"
+            data-prompt="Create a premium AI SaaS landing page called Vectorly"
           >
-            Copy code
+            <span class="suggestion-icon">✦</span>
+            AI SaaS
           </button>
 
           <button
-            type="button"
-            data-close="codeModal"
-            class="px-3 py-2 rounded-lg border border-zinc-800 text-xs hover:bg-zinc-900"
+            class="suggestion"
+            data-prompt="Create a beautiful premium coffee shop website called Ember & Bean"
           >
-            Close
+            <span class="suggestion-icon">☕</span>
+            Coffee Shop
+          </button>
+
+          <button
+            class="suggestion"
+            data-prompt="Create a modern ecommerce store called Nova Store"
+          >
+            <span class="suggestion-icon">◇</span>
+            Online Store
+          </button>
+
+          <button
+            class="suggestion"
+            data-prompt="Create a professional product designer portfolio called Alex Morgan"
+          >
+            <span class="suggestion-icon">↗</span>
+            Portfolio
           </button>
 
         </div>
 
-      </div>
+        <div class="home-note">
+          Describe it. Build it. Preview it. Export it.
+        </div>
 
-      <pre id="codeOutput" class="flex-1 overflow-auto p-5 text-xs text-zinc-300 whitespace-pre-wrap"></pre>
+      </div>
 
     </div>
 
-  </div>
+  </main>
 
-  <!-- PUBLISH MODAL -->
-  <div id="publishModal" class="modal-bg hidden fixed inset-0 z-50 p-4 items-center justify-center">
+</section>
 
-    <div class="w-full max-w-lg bg-zinc-950 border border-zinc-800 rounded-2xl p-6">
 
-      <div class="flex justify-between gap-4">
+<!-- ==========================================================
+     BUILDER SCREEN
+========================================================== -->
 
-        <div>
-          <div class="text-xs text-emerald-400 mb-2">
-            PROJECT READY
-          </div>
+<section id="builderScreen" class="hidden">
 
-          <h2 class="text-xl font-semibold">
-            Publish / Export
-          </h2>
+  <header class="builder-nav">
 
-          <p class="text-sm text-zinc-500 mt-2">
-            Export your generated project.
-          </p>
+    <div class="builder-nav-left">
+
+      <button
+        class="top-btn"
+        id="backHomeBtn"
+        title="Back home"
+      >
+        ←
+      </button>
+
+      <div class="builder-brand">
+
+        <div class="builder-logo">
+          B
         </div>
 
+        BuildPro AI
+
+      </div>
+
+      <div
+        class="project-title"
+        id="projectTitle"
+      >
+        Untitled Project
+      </div>
+
+    </div>
+
+
+    <div class="builder-nav-right">
+
+      <button
+        class="top-btn"
+        id="desktopViewBtn"
+      >
+        Desktop
+      </button>
+
+      <button
+        class="top-btn"
+        id="codeBtn"
+      >
+        &lt;/&gt; Code
+      </button>
+
+      <button
+        class="top-btn publish-btn"
+        id="publishBtn"
+      >
+        Publish
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <div class="builder-layout">
+
+    <!-- CHAT -->
+
+    <aside class="chat-panel">
+
+      <div class="chat-header">
+
+        <div class="chat-header-title">
+          Build with AI
+        </div>
+
+        <div class="status-pill">
+          <span></span>
+          Ready
+        </div>
+
+      </div>
+
+
+      <div id="chatMessages">
+
+        <div class="message ai-message">
+
+          <div class="ai-icon">
+            AI
+          </div>
+
+          <div class="ai-content">
+            Your project is ready to build.
+            Ask me to change the design, layout,
+            sections or content at any time.
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="builder-composer-wrap">
+
+        <form
+          id="builderForm"
+          class="builder-composer"
+        >
+
+          <textarea
+            id="builderPrompt"
+            placeholder="Ask BuildPro to make a change..."
+            maxlength="3000"
+          ></textarea>
+
+          <div class="builder-composer-bottom">
+
+            <div class="builder-hint">
+              ⌘ + Enter
+            </div>
+
+            <button
+              class="builder-send"
+              id="builderSend"
+              type="submit"
+            >
+              ↑
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+    </aside>
+
+
+    <!-- PREVIEW -->
+
+    <section class="preview-panel">
+
+      <div class="preview-toolbar">
+
+        <div class="browser-dots">
+          <span class="browser-dot red"></span>
+          <span class="browser-dot yellow"></span>
+          <span class="browser-dot green"></span>
+        </div>
+
+
+        <div class="device-controls">
+
+          <button
+            class="device-btn active"
+            id="previewDesktopBtn"
+          >
+            Desktop
+          </button>
+
+          <button
+            class="device-btn"
+            id="previewMobileBtn"
+          >
+            Mobile
+          </button>
+
+        </div>
+
+
+        <div style="font-size:11px;color:#66666c">
+          Live Preview
+        </div>
+
+      </div>
+
+
+      <div class="preview-stage">
+
+        <div
+          class="preview-shell"
+          id="previewShell"
+        >
+
+          <iframe
+            id="previewFrame"
+            sandbox="allow-scripts allow-forms"
+            title="BuildPro Preview"
+          ></iframe>
+
+        </div>
+
+      </div>
+
+
+      <div class="preview-status">
+
+        <span id="builderStatus">
+          Ready
+        </span>
+
+        <span>
+          BuildPro Preview
+        </span>
+
+      </div>
+
+    </section>
+
+  </div>
+
+</section>
+
+
+<!-- ==========================================================
+     MENU
+========================================================== -->
+
+<div
+  id="menuPopover"
+  class="menu-popover hidden"
+>
+
+  <button
+    class="menu-item"
+    id="menuNewProject"
+  >
+    + New project
+  </button>
+
+  <button
+    class="menu-item"
+    id="menuProjects"
+  >
+    My projects
+  </button>
+
+  <button
+    class="menu-item"
+    id="menuUpgrade"
+  >
+    Upgrade to Pro
+  </button>
+
+  <button
+    class="menu-item"
+    id="menuAbout"
+  >
+    About BuildPro
+  </button>
+
+</div>
+
+
+<!-- ==========================================================
+     CODE MODAL
+========================================================== -->
+
+<div
+  id="codeModal"
+  class="modal hidden"
+>
+
+  <div class="modal-card modal-large">
+
+    <div class="modal-header">
+
+      <div>
+        <div class="modal-title">
+          Generated code
+        </div>
+
+        <div class="modal-subtitle">
+          Complete standalone HTML
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px">
+
         <button
-          type="button"
-          data-close="publishModal"
-          class="text-zinc-500 text-xl"
+          class="top-btn"
+          id="copyCodeBtn"
+        >
+          Copy
+        </button>
+
+        <button
+          class="close-btn"
+          data-close="codeModal"
         >
           ×
         </button>
 
       </div>
 
-      <div class="space-y-3 mt-6">
+    </div>
 
-        <button
-          id="downloadButton"
-          type="button"
-          class="w-full p-4 text-left rounded-xl border border-zinc-800 hover:bg-zinc-900 transition"
+    <pre
+      id="codeOutput"
+      class="code-area"
+    ></pre>
+
+  </div>
+
+</div>
+
+
+<!-- ==========================================================
+     PUBLISH MODAL
+========================================================== -->
+
+<div
+  id="publishModal"
+  class="modal hidden"
+>
+
+  <div class="modal-card">
+
+    <div class="modal-header">
+
+      <div>
+        <div class="modal-title">
+          Publish your project
+        </div>
+
+        <div class="modal-subtitle">
+          Export your generated website.
+        </div>
+      </div>
+
+      <button
+        class="close-btn"
+        data-close="publishModal"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <div class="modal-body">
+
+      <button
+        class="export-option"
+        id="downloadBtn"
+      >
+        <strong>
+          ↓ Download HTML
+        </strong>
+
+        <small>
+          Save your complete generated website.
+        </small>
+      </button>
+
+
+      <button
+        class="export-option"
+        id="exportCopyBtn"
+      >
+        <strong>
+          &lt;/&gt; Copy source code
+        </strong>
+
+        <small>
+          Copy the complete HTML to your clipboard.
+        </small>
+      </button>
+
+
+      <button
+        class="export-option"
+        id="deployBtn"
+      >
+        <strong>
+          ✦ Deploy website
+        </strong>
+
+        <small>
+          Connect hosting for one-click publishing.
+        </small>
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ==========================================================
+     PRICING
+========================================================== -->
+
+<div
+  id="pricingModal"
+  class="modal hidden"
+>
+
+  <div class="modal-card">
+
+    <div class="modal-header">
+
+      <div>
+        <span class="pro-badge">
+          BUILDPRO PRO
+        </span>
+
+        <div
+          class="modal-title"
+          style="font-size:25px;margin-top:14px"
         >
-          <strong class="text-sm">
-            ↓ Download HTML
-          </strong>
+          Build without limits.
+        </div>
 
-          <div class="text-xs text-zinc-500 mt-1">
-            Download the generated website as an HTML file.
-          </div>
-        </button>
+        <div class="modal-subtitle">
+          Unlock unlimited projects and premium tools.
+        </div>
+      </div>
 
-        <button
-          id="publishCopyButton"
-          type="button"
-          class="w-full p-4 text-left rounded-xl border border-zinc-800 hover:bg-zinc-900 transition"
-        >
-          <strong class="text-sm">
-            &lt;/&gt; Copy source code
-          </strong>
+      <button
+        class="close-btn"
+        data-close="pricingModal"
+      >
+        ×
+      </button>
 
-          <div class="text-xs text-zinc-500 mt-1">
-            Copy the complete website code.
-          </div>
-        </button>
+    </div>
 
-        <button
-          id="deployButton"
-          type="button"
-          class="w-full p-4 text-left rounded-xl border border-violet-500/30 bg-violet-500/5 hover:bg-violet-500/10 transition"
-        >
-          <strong class="text-sm text-violet-300">
-            ✦ Deploy project
-          </strong>
 
-          <div class="text-xs text-zinc-500 mt-1">
-            Production deployment requires a hosting backend.
-          </div>
-        </button>
+    <div class="modal-body">
 
+      <div class="price">
+        $19
+        <span>/ month</span>
+      </div>
+
+      <ul class="features">
+        <li>✓ Unlimited AI builds</li>
+        <li>✓ Unlimited projects</li>
+        <li>✓ Complete source-code export</li>
+        <li>✓ Production publishing</li>
+        <li>✓ Project history</li>
+        <li>✓ Priority generation</li>
+      </ul>
+
+      <button
+        class="primary-full"
+        id="checkoutBtn"
+      >
+        Start Pro — $19/month
+      </button>
+
+      <div
+        style="
+          color:#55555b;
+          text-align:center;
+          font-size:10px;
+          margin-top:12px
+        "
+      >
+        Stripe subscription connection required for live payments.
       </div>
 
     </div>
+
   </div>
 
-  <!-- PRICING MODAL -->
-  <div id="pricingModal" class="modal-bg hidden fixed inset-0 z-50 p-4 items-center justify-center">
-
-    <div class="w-full max-w-md bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl">
-
-      <div class="p-6 border-b border-zinc-800">
-
-        <div class="flex justify-between gap-4">
-
-          <div>
-
-            <span class="inline-block px-2 py-1 rounded-full bg-violet-500/10 text-violet-300 text-[10px] uppercase tracking-wider">
-              BuildPro Pro
-            </span>
-
-            <h2 class="text-2xl font-bold mt-4">
-              Build without limits.
-            </h2>
-
-            <p class="text-sm text-zinc-500 mt-2">
-              Upgrade your BuildPro AI account.
-            </p>
-
-          </div>
-
-          <button
-            type="button"
-            data-close="pricingModal"
-            class="text-zinc-500 text-xl"
-          >
-            ×
-          </button>
-
-        </div>
-
-        <div class="mt-6">
-
-          <span class="text-4xl font-black">
-            $19
-          </span>
-
-          <span class="text-zinc-500">
-            /month
-          </span>
-
-        </div>
-
-      </div>
-
-      <div class="p-6">
-
-        <ul class="space-y-3 text-sm text-zinc-400">
-          <li>✓ Unlimited AI builds</li>
-          <li>✓ Unlimited projects</li>
-          <li>✓ Source code export</li>
-          <li>✓ Production publishing</li>
-          <li>✓ Project history</li>
-          <li>✓ Priority generation</li>
-        </ul>
-
-        <button
-          id="checkoutButton"
-          type="button"
-          class="w-full mt-6 py-3.5 rounded-xl bg-white text-black font-bold hover:bg-zinc-200 transition"
-        >
-          Upgrade to Pro — $19/month
-        </button>
-
-        <p class="text-[10px] text-zinc-600 text-center mt-3">
-          Stripe backend connection required for real payments.
-        </p>
-
-      </div>
-
-    </div>
-  </div>
-
-  <script>
-    "use strict";
-
-    /* =========================================================
-       BUILDPRO CONFIGURATION
-    ========================================================= */
-
-    const BUILDPRO_CONFIG = {
-      appName: "BuildPro AI",
-
-      trial: {
-        enabled: true,
-        freeBuilds: 10
-      },
-
-      pricing: {
-        proMonthly: 19
-      },
-
-      /*
-        Put your Stripe Payment Link here when ready.
-
-        Example format:
-        https://buy.stripe.com/...
-
-        IMPORTANT:
-        A Payment Link is safe to expose.
-
-        NEVER put:
-        - Stripe secret keys
-        - AI secret keys
-        - database passwords
-        inside this HTML file.
-      */
-      stripePaymentLink: ""
-    };
+</div>
 
 
-    /* =========================================================
-       APPLICATION STATE
-    ========================================================= */
+<script>
+"use strict";
 
-    const state = {
-      code: "",
-      projectName: "Untitled project",
-      generating: false,
-      credits: getSavedCredits()
-    };
+/* =============================================================
+   CONFIGURATION
+============================================================= */
 
+const CONFIG = {
+  appName: "BuildPro AI",
 
-    /* =========================================================
-       ELEMENTS
-    ========================================================= */
+  /*
+    OPTIONAL:
 
-    const $ = selector => document.querySelector(selector);
-    const $$ = selector => Array.from(document.querySelectorAll(selector));
+    Add your public Stripe Payment Link here.
 
-    const elements = {
-      form: $("#promptForm"),
-      prompt: $("#prompt"),
-      generateButton: $("#generateButton"),
-      generateText: $("#generateText"),
-      loadingDots: $("#loadingDots"),
-      chat: $("#chat"),
-      examples: $("#examples"),
-      preview: $("#preview"),
-      emptyPreview: $("#emptyPreview"),
-      status: $("#status"),
-      projectName: $("#projectName"),
-      previewAddress: $("#previewAddress"),
-      creditDisplay: $("#creditDisplay"),
-      charCount: $("#charCount"),
-      codeModal: $("#codeModal"),
-      codeOutput: $("#codeOutput"),
-      publishModal: $("#publishModal"),
-      pricingModal: $("#pricingModal")
-    };
+    Example:
+    https://buy.stripe.com/...
+
+    Do NOT put a Stripe secret key here.
+  */
+  stripePaymentLink: ""
+};
 
 
-    /* =========================================================
-       STORAGE
-    ========================================================= */
+/* =============================================================
+   STATE
+============================================================= */
 
-    function getSavedCredits() {
-      const defaultCredits = BUILDPRO_CONFIG.trial.freeBuilds;
-
-      try {
-        const stored = localStorage.getItem("buildpro_credits");
-
-        if (stored === null) {
-          return defaultCredits;
-        }
-
-        const number = Number(stored);
-
-        if (!Number.isFinite(number) || number < 0) {
-          return defaultCredits;
-        }
-
-        return number;
-      } catch {
-        return defaultCredits;
-      }
-    }
+const state = {
+  generatedCode: "",
+  currentPrompt: "",
+  projectName: "Untitled Project",
+  generating: false
+};
 
 
-    function saveCredits() {
-      try {
-        localStorage.setItem(
-          "buildpro_credits",
-          String(state.credits)
-        );
-      } catch {
-        // LocalStorage may be disabled.
-      }
+const $ = selector =>
+  document.querySelector(selector);
 
-      elements.creditDisplay.textContent = state.credits;
-    }
+const $$ = selector =>
+  Array.from(document.querySelectorAll(selector));
 
 
-    /* =========================================================
-       HELPERS
-    ========================================================= */
+/* =============================================================
+   ESCAPING
+============================================================= */
 
-    function escapeHTML(value) {
-      return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-
-    function openModal(modal) {
-      if (!modal) return;
-
-      modal.classList.remove("hidden");
-      modal.classList.add("flex");
-    }
+function escapeHTML(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
 
 
-    function closeModal(modal) {
-      if (!modal) return;
+/* =============================================================
+   HERO WORD ANIMATION
+============================================================= */
 
+const words = [
+  "idea.",
+  "startup.",
+  "store.",
+  "website.",
+  "product."
+];
+
+let wordIndex = 0;
+
+setInterval(() => {
+
+  const element = $("#changingWord");
+
+  element.classList.add("switching");
+
+  setTimeout(() => {
+
+    wordIndex =
+      (wordIndex + 1) % words.length;
+
+    element.textContent =
+      words[wordIndex];
+
+    element.classList.remove("switching");
+
+  }, 250);
+
+}, 2600);
+
+
+/* =============================================================
+   MODALS
+============================================================= */
+
+function openModal(id) {
+  const modal = document.getElementById(id);
+
+  if (modal) {
+    modal.classList.remove("hidden");
+  }
+}
+
+
+function closeModal(id) {
+  const modal = document.getElementById(id);
+
+  if (modal) {
+    modal.classList.add("hidden");
+  }
+}
+
+
+$$("[data-close]").forEach(button => {
+
+  button.addEventListener("click", () => {
+    closeModal(button.dataset.close);
+  });
+
+});
+
+
+$$(".modal").forEach(modal => {
+
+  modal.addEventListener("click", event => {
+
+    if (event.target === modal) {
       modal.classList.add("hidden");
-      modal.classList.remove("flex");
     }
 
+  });
 
-    function setGenerating(value) {
-      state.generating = value;
+});
 
-      elements.generateButton.disabled = value;
 
-      elements.generateText.classList.toggle(
-        "hidden",
-        value
-      );
+document.addEventListener("keydown", event => {
 
-      elements.loadingDots.classList.toggle(
-        "hidden",
-        !value
-      );
+  if (event.key === "Escape") {
 
-      elements.status.textContent =
-        value
-          ? "BuildPro AI is generating..."
-          : "Ready";
+    $$(".modal").forEach(modal =>
+      modal.classList.add("hidden")
+    );
+
+    $("#menuPopover").classList.add("hidden");
+  }
+
+});
+
+
+/* =============================================================
+   HOME MENU
+============================================================= */
+
+$("#menuButton").addEventListener("click", event => {
+
+  event.stopPropagation();
+
+  $("#menuPopover")
+    .classList
+    .toggle("hidden");
+
+});
+
+
+document.addEventListener("click", event => {
+
+  const menu = $("#menuPopover");
+
+  if (
+    !menu.contains(event.target) &&
+    event.target !== $("#menuButton")
+  ) {
+    menu.classList.add("hidden");
+  }
+
+});
+
+
+$("#homeUpgradeBtn").addEventListener(
+  "click",
+  () => openModal("pricingModal")
+);
+
+
+$("#menuUpgrade").addEventListener(
+  "click",
+  () => {
+
+    $("#menuPopover").classList.add("hidden");
+    openModal("pricingModal");
+
+  }
+);
+
+
+$("#projectsBtn").addEventListener(
+  "click",
+  () => alert(
+    "Project accounts and cloud project storage will be connected when the backend/database is added."
+  )
+);
+
+
+$("#menuProjects").addEventListener(
+  "click",
+  () => alert(
+    "Project accounts and cloud project storage require the BuildPro backend."
+  )
+);
+
+
+$("#menuAbout").addEventListener(
+  "click",
+  () => {
+
+    $("#menuPopover").classList.add("hidden");
+
+    alert(
+      "BuildPro AI turns natural-language ideas into websites and web apps."
+    );
+
+  }
+);
+
+
+$("#menuNewProject").addEventListener(
+  "click",
+  () => {
+
+    $("#menuPopover").classList.add("hidden");
+
+    $("#homePrompt").value = "";
+    $("#homePrompt").focus();
+
+  }
+);
+
+
+/* =============================================================
+   SUGGESTIONS
+============================================================= */
+
+$$(".suggestion").forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    $("#homePrompt").value =
+      button.dataset.prompt || "";
+
+    $("#homePrompt").focus();
+
+  });
+
+});
+
+
+/* =============================================================
+   PROMPT ANALYSIS
+============================================================= */
+
+function extractProjectName(prompt, fallback) {
+
+  const patterns = [
+    /called\s+["“]?([^"”.,]+)["”]?/i,
+    /named\s+["“]?([^"”.,]+)["”]?/i
+  ];
+
+  for (const pattern of patterns) {
+
+    const match =
+      prompt.match(pattern);
+
+    if (match && match[1]) {
+
+      return match[1]
+        .trim()
+        .slice(0, 50);
     }
 
+  }
 
-    function updateCharacterCount() {
-      elements.charCount.textContent =
-        `${elements.prompt.value.length} / 3000`;
-    }
+  return fallback;
+}
 
 
-    function addMessage(role, message) {
-      const wrapper = document.createElement("div");
+function analyzePrompt(prompt) {
 
-      wrapper.className = "message-enter";
-
-      if (role === "user") {
-
-        wrapper.innerHTML = `
-          <div class="flex justify-end">
-
-            <div class="max-w-[88%] px-4 py-3 rounded-2xl rounded-br-md bg-violet-600/15 border border-violet-500/20">
-
-              <p class="m-0 text-sm text-zinc-200 leading-6">
-                ${escapeHTML(message)}
-              </p>
-
-            </div>
-
-          </div>
-        `;
-
-      } else {
-
-        wrapper.innerHTML = `
-          <div class="flex gap-3">
-
-            <div class="w-8 h-8 shrink-0 rounded-lg bg-violet-500/15 border border-violet-500/20 flex items-center justify-center text-xs text-violet-400">
-              AI
-            </div>
-
-            <div>
-
-              <div class="text-xs text-zinc-500 mb-1">
-                BuildPro AI
-              </div>
-
-              <p class="m-0 text-sm text-zinc-300 leading-6">
-                ${escapeHTML(message)}
-              </p>
-
-            </div>
-
-          </div>
-        `;
-
-      }
-
-      elements.chat.appendChild(wrapper);
-
-      elements.chat.scrollTop =
-        elements.chat.scrollHeight;
-    }
-
-
-    function extractName(prompt, fallback) {
-      const expressions = [
-        /called\s+["“]?([^"”.,]+)["”]?/i,
-        /named\s+["“]?([^"”.,]+)["”]?/i
-      ];
-
-      for (const expression of expressions) {
-
-        const match = prompt.match(expression);
-
-        if (match && match[1]) {
-          return match[1].trim().slice(0, 60);
-        }
-
-      }
-
-      return fallback;
-    }
-
-
-    function analyzePrompt(prompt) {
-      const text = prompt.toLowerCase();
-
-      if (
-        /coffee|cafe|café|restaurant|bakery|food/.test(text)
-      ) {
-        return {
-          type: "coffee",
-          name: extractName(prompt, "Ember & Bean")
-        };
-      }
-
-      if (
-        /saas|software|startup|analytics|artificial intelligence|ai app|dashboard/.test(text)
-      ) {
-        return {
-          type: "saas",
-          name: extractName(prompt, "Vectorly")
-        };
-      }
-
-      if (
-        /portfolio|designer|developer|creative|photographer/.test(text)
-      ) {
-        return {
-          type: "portfolio",
-          name: extractName(prompt, "Alex Morgan")
-        };
-      }
-
-      if (
-        /store|shop|ecommerce|e-commerce|product/.test(text)
-      ) {
-        return {
-          type: "store",
-          name: extractName(prompt, "Nova Store")
-        };
-      }
-
-      return {
-        type: "generic",
-        name: extractName(prompt, "Nova")
-      };
-    }
-
-
-    /* =========================================================
-       GENERATED WEBSITE CSS
-    ========================================================= */
-
-    function generatedCSS(accent) {
-      return `
-        * {
-          box-sizing: border-box;
-        }
-
-        html {
-          scroll-behavior: smooth;
-        }
-
-        body {
-          margin: 0;
-          background: #fafafa;
-          color: #18181b;
-          font-family:
-            Inter,
-            ui-sans-serif,
-            system-ui,
-            -apple-system,
-            BlinkMacSystemFont,
-            "Segoe UI",
-            sans-serif;
-        }
-
-        a {
-          color: inherit;
-          text-decoration: none;
-        }
-
-        button {
-          font: inherit;
-        }
-
-        .container {
-          width: min(1120px, calc(100% - 40px));
-          margin: auto;
-        }
-
-        nav {
-          height: 72px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-
-        .logo {
-          font-weight: 900;
-          letter-spacing: -.04em;
-          font-size: 20px;
-        }
-
-        .links {
-          display: flex;
-          gap: 25px;
-          color: #71717a;
-          font-size: 14px;
-        }
-
-        .button {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          border: 0;
-          border-radius: 12px;
-          padding: 13px 19px;
-          font-weight: 750;
-          cursor: pointer;
-          transition:
-            transform .2s,
-            opacity .2s;
-        }
-
-        .button:hover {
-          transform: translateY(-2px);
-        }
-
-        .primary {
-          background: ${accent};
-          color: white;
-        }
-
-        .secondary {
-          background: white;
-          border: 1px solid #e4e4e7;
-          color: #18181b;
-        }
-
-        .hero {
-          padding: 120px 0 100px;
-          text-align: center;
-        }
-
-        .eyebrow {
-          text-transform: uppercase;
-          letter-spacing: .17em;
-          font-size: 11px;
-          font-weight: 800;
-          color: ${accent};
-          margin-bottom: 20px;
-        }
-
-        h1 {
-          max-width: 900px;
-          margin: 0 auto 25px;
-          font-size: clamp(46px, 8vw, 82px);
-          line-height: .98;
-          letter-spacing: -.065em;
-        }
-
-        h2 {
-          font-size: clamp(32px, 5vw, 52px);
-          letter-spacing: -.05em;
-          line-height: 1.05;
-        }
-
-        h3 {
-          font-size: 19px;
-        }
-
-        .lead {
-          max-width: 650px;
-          margin: 0 auto 32px;
-          color: #71717a;
-          font-size: 18px;
-          line-height: 1.75;
-        }
-
-        .actions {
-          display: flex;
-          justify-content: center;
-          gap: 12px;
-          flex-wrap: wrap;
-        }
-
-        section {
-          padding: 90px 0;
-        }
-
-        .grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 18px;
-          margin-top: 40px;
-        }
-
-        .card {
-          background: white;
-          border: 1px solid #e4e4e7;
-          border-radius: 22px;
-          padding: 28px;
-          box-shadow: 0 15px 50px rgba(0,0,0,.04);
-        }
-
-        .card p {
-          color: #71717a;
-          line-height: 1.7;
-        }
-
-        .dark {
-          background: #18181b;
-          color: white;
-        }
-
-        .dark p {
-          color: #a1a1aa;
-          max-width: 650px;
-          line-height: 1.8;
-        }
-
-        footer {
-          border-top: 1px solid #e4e4e7;
-          padding: 30px 0;
-          color: #71717a;
-          font-size: 13px;
-        }
-
-        @media (max-width: 760px) {
-
-          .links {
-            display: none;
-          }
-
-          .grid {
-            grid-template-columns: 1fr;
-          }
-
-          section {
-            padding: 65px 0;
-          }
-
-          .hero {
-            padding: 90px 0 70px;
-          }
-        }
-      `;
-    }
-
-
-    function createDocument(title, content, accent) {
-      return `<!DOCTYPE html>
+  const text =
+    prompt.toLowerCase();
+
+  if (
+    /coffee|cafe|café|restaurant|bakery/.test(text)
+  ) {
+
+    return {
+      type: "coffee",
+      name:
+        extractProjectName(
+          prompt,
+          "Ember & Bean"
+        )
+    };
+
+  }
+
+
+  if (
+    /saas|startup|software|ai|dashboard|analytics/.test(text)
+  ) {
+
+    return {
+      type: "saas",
+      name:
+        extractProjectName(
+          prompt,
+          "Vectorly"
+        )
+    };
+
+  }
+
+
+  if (
+    /portfolio|designer|developer|photographer|creative/.test(text)
+  ) {
+
+    return {
+      type: "portfolio",
+      name:
+        extractProjectName(
+          prompt,
+          "Alex Morgan"
+        )
+    };
+
+  }
+
+
+  if (
+    /shop|store|ecommerce|e-commerce|fashion|product/.test(text)
+  ) {
+
+    return {
+      type: "store",
+      name:
+        extractProjectName(
+          prompt,
+          "Nova Store"
+        )
+    };
+
+  }
+
+
+  return {
+    type: "generic",
+    name:
+      extractProjectName(
+        prompt,
+        "Nova"
+      )
+  };
+}
+
+
+/* =============================================================
+   GENERATED WEBSITE BASE
+============================================================= */
+
+function websiteCSS(accent) {
+
+return `
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #fafafa;
+  color: #171717;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+}
+
+.wrap {
+  width: min(1120px, calc(100% - 40px));
+  margin: auto;
+}
+
+nav {
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-weight: 850;
+  letter-spacing: -.045em;
+  font-size: 20px;
+}
+
+.links {
+  display: flex;
+  gap: 26px;
+  color: #737373;
+  font-size: 14px;
+}
+
+.btn {
+  border: 0;
+  border-radius: 12px;
+  padding: 13px 19px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: .2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn-primary {
+  color: white;
+  background: ${accent};
+}
+
+.btn-light {
+  color: #171717;
+  background: white;
+  border: 1px solid #e5e5e5;
+}
+
+.hero {
+  min-height: 620px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+}
+
+.hero-inner {
+  width: 100%;
+}
+
+.tag {
+  display: inline-flex;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: ${accent}12;
+  color: ${accent};
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+h1 {
+  max-width: 900px;
+  margin: auto;
+  font-size: clamp(52px,8vw,90px);
+  line-height: .95;
+  letter-spacing: -.07em;
+}
+
+.lead {
+  max-width: 640px;
+  margin: 27px auto 0;
+  color: #737373;
+  line-height: 1.7;
+  font-size: 18px;
+}
+
+.actions {
+  margin-top: 31px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.section {
+  padding: 100px 0;
+}
+
+.section-title {
+  font-size: clamp(35px,5vw,55px);
+  letter-spacing: -.055em;
+  line-height: 1.05;
+  margin: 0;
+}
+
+.section-copy {
+  color: #737373;
+  line-height: 1.75;
+  max-width: 600px;
+}
+
+.grid {
+  margin-top: 42px;
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 18px;
+}
+
+.card {
+  padding: 27px;
+  background: white;
+  border: 1px solid #e7e7e7;
+  border-radius: 21px;
+  box-shadow: 0 15px 60px rgba(0,0,0,.035);
+}
+
+.card-icon {
+  font-size: 28px;
+}
+
+.card h3 {
+  margin: 18px 0 8px;
+  font-size: 18px;
+}
+
+.card p {
+  color: #737373;
+  line-height: 1.65;
+  font-size: 14px;
+}
+
+.dark-section {
+  background: #171717;
+  color: white;
+}
+
+.dark-section .section-copy {
+  color: #a3a3a3;
+}
+
+footer {
+  border-top: 1px solid #e5e5e5;
+  padding: 30px 0;
+  color: #737373;
+  font-size: 12px;
+}
+
+@media(max-width:760px) {
+
+  .links {
+    display: none;
+  }
+
+  .hero {
+    min-height: 570px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section {
+    padding: 75px 0;
+  }
+}
+`;
+}
+
+
+function createWebsiteDocument(
+  title,
+  accent,
+  body
+) {
+
+return `<!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+
 <title>${escapeHTML(title)}</title>
 
 <style>
-${generatedCSS(accent)}
+${websiteCSS(accent)}
 </style>
 
 </head>
 
 <body>
 
-${content}
+${body}
 
 <script>
-document.querySelectorAll("[data-target]").forEach(function(button) {
+document.querySelectorAll("[data-scroll]").forEach(function(button) {
 
   button.addEventListener("click", function() {
 
     var target =
-      document.querySelector(button.dataset.target);
+      document.querySelector(
+        button.dataset.scroll
+      );
 
     if (target) {
+
       target.scrollIntoView({
         behavior: "smooth"
       });
+
     }
 
   });
@@ -1164,257 +2425,22 @@ document.querySelectorAll("[data-target]").forEach(function(button) {
 
 </body>
 </html>`;
-    }
+}
 
 
-    /* =========================================================
-       COFFEE TEMPLATE
-    ========================================================= */
+/* =============================================================
+   COFFEE WEBSITE
+============================================================= */
 
-    function generateCoffee(data) {
+function coffeeTemplate(data) {
 
-      return createDocument(
-        data.name,
+return createWebsiteDocument(
+data.name,
+"#a16207",
+`
 
-        `
 <header>
-  <div class="container">
-
-    <nav>
-
-      <div class="logo">
-        ${escapeHTML(data.name)}
-      </div>
-
-      <div class="links">
-        <a href="#menu">Menu</a>
-        <a href="#story">Story</a>
-        <a href="#visit">Visit</a>
-      </div>
-
-      <button
-        class="button primary"
-        data-target="#visit"
-      >
-        Visit us
-      </button>
-
-    </nav>
-
-  </div>
-</header>
-
-
-<main>
-
-<section class="hero">
-
-  <div class="container">
-
-    <div class="eyebrow">
-      Specialty coffee · Crafted daily
-    </div>
-
-    <h1>
-      Coffee worth slowing down for.
-    </h1>
-
-    <p class="lead">
-      Exceptional beans, thoughtful roasting and a warm
-      neighborhood space built around great coffee.
-    </p>
-
-    <div class="actions">
-
-      <button
-        class="button primary"
-        data-target="#menu"
-      >
-        Explore our menu
-      </button>
-
-      <button
-        class="button secondary"
-        data-target="#story"
-      >
-        Our story
-      </button>
-
-    </div>
-
-  </div>
-
-</section>
-
-
-<section id="menu">
-
-  <div class="container">
-
-    <div class="eyebrow">
-      Favorites
-    </div>
-
-    <h2>
-      Made beautifully.<br>
-      Served simply.
-    </h2>
-
-    <div class="grid">
-
-      <article class="card">
-
-        <div style="font-size:35px">
-          ☕
-        </div>
-
-        <h3>
-          House Espresso
-        </h3>
-
-        <p>
-          Chocolate, caramel and toasted almond.
-        </p>
-
-        <strong>
-          $4.50
-        </strong>
-
-      </article>
-
-
-      <article class="card">
-
-        <div style="font-size:35px">
-          🥐
-        </div>
-
-        <h3>
-          Butter Croissant
-        </h3>
-
-        <p>
-          Freshly baked every morning.
-        </p>
-
-        <strong>
-          $4.00
-        </strong>
-
-      </article>
-
-
-      <article class="card">
-
-        <div style="font-size:35px">
-          🍵
-        </div>
-
-        <h3>
-          Matcha Cloud
-        </h3>
-
-        <p>
-          Ceremonial matcha and silky oat milk.
-        </p>
-
-        <strong>
-          $6.50
-        </strong>
-
-      </article>
-
-    </div>
-
-  </div>
-
-</section>
-
-
-<section id="story" class="dark">
-
-  <div class="container">
-
-    <div class="eyebrow">
-      Our story
-    </div>
-
-    <h2>
-      Great coffee.<br>
-      Better conversations.
-    </h2>
-
-    <p>
-      We created ${escapeHTML(data.name)}
-      as a place to pause, meet and enjoy
-      coffee made with genuine attention
-      to detail.
-    </p>
-
-  </div>
-
-</section>
-
-
-<section id="visit">
-
-  <div class="container">
-
-    <div class="card">
-
-      <div class="eyebrow">
-        Visit
-      </div>
-
-      <h2>
-        Come say hello.
-      </h2>
-
-      <p>
-        42 Market Street<br>
-        Monday–Sunday · 7 AM–6 PM
-      </p>
-
-      <button class="button primary">
-        Get directions
-      </button>
-
-    </div>
-
-  </div>
-
-</section>
-
-</main>
-
-
-<footer>
-
-  <div class="container">
-    © 2026 ${escapeHTML(data.name)}
-  </div>
-
-</footer>
-        `,
-
-        "#b45309"
-      );
-    }
-
-
-    /* =========================================================
-       SAAS TEMPLATE
-    ========================================================= */
-
-    function generateSaaS(data) {
-
-      return createDocument(
-        data.name,
-
-        `
-<header>
-
-<div class="container">
+<div class="wrap">
 
 <nav>
 
@@ -1423,59 +2449,59 @@ ${escapeHTML(data.name)}
 </div>
 
 <div class="links">
-<a href="#features">Features</a>
-<a href="#pricing">Pricing</a>
-<a href="#about">Company</a>
+<a href="#menu">Menu</a>
+<a href="#story">Our Story</a>
+<a href="#visit">Visit</a>
 </div>
 
 <button
-class="button primary"
-data-target="#pricing"
+class="btn btn-primary"
+data-scroll="#visit"
 >
-Start free
+Visit us
 </button>
 
 </nav>
 
 </div>
-
 </header>
 
 
 <main>
 
-
 <section class="hero">
 
-<div class="container">
+<div class="wrap hero-inner">
 
-<div class="eyebrow">
-AI-powered workspace
+<div class="tag">
+Specialty coffee
 </div>
 
 <h1>
-Turn complexity into clarity.
+A better way
+to start your day.
 </h1>
 
 <p class="lead">
-Understand your business faster with intelligent
-analytics, beautiful dashboards and AI-powered insights.
+Thoughtfully sourced coffee,
+fresh pastries and a warm space
+made for slow mornings.
 </p>
 
 <div class="actions">
 
 <button
-class="button primary"
-data-target="#pricing"
+class="btn btn-primary"
+data-scroll="#menu"
 >
-Start building
+Explore menu
 </button>
 
 <button
-class="button secondary"
-data-target="#features"
+class="btn btn-light"
+data-scroll="#story"
 >
-Explore features
+Our story
 </button>
 
 </div>
@@ -1485,61 +2511,52 @@ Explore features
 </section>
 
 
-<section id="features">
+<section
+class="section"
+id="menu"
+>
 
-<div class="container">
+<div class="wrap">
 
-<div class="eyebrow">
-Platform
+<div class="tag">
+Favorites
 </div>
 
-<h2>
-Everything your team<br>
-needs to move faster.
+<h2 class="section-title">
+Made simply.<br>
+Served beautifully.
 </h2>
 
 <div class="grid">
 
 <div class="card">
-
-<h3>
-✦ AI Insights
-</h3>
-
+<div class="card-icon">☕</div>
+<h3>House Espresso</h3>
 <p>
-Automatically discover trends,
-opportunities and anomalies
-in your data.
+Dark chocolate,
+caramel and toasted almond.
 </p>
-
+<strong>$4.50</strong>
 </div>
 
-
 <div class="card">
-
-<h3>
-◈ Live Analytics
-</h3>
-
+<div class="card-icon">🥐</div>
+<h3>Butter Croissant</h3>
 <p>
-Track the metrics that matter
-with beautiful real-time dashboards.
+Freshly baked,
+flaky and beautifully simple.
 </p>
-
+<strong>$4.00</strong>
 </div>
 
-
 <div class="card">
-
-<h3>
-↗ Smart Reports
-</h3>
-
+<div class="card-icon">🍵</div>
+<h3>Matcha Cloud</h3>
 <p>
-Turn complex information into reports
-your entire organization understands.
+Ceremonial matcha
+with silky oat milk.
 </p>
-
+<strong>$6.50</strong>
 </div>
 
 </div>
@@ -1550,25 +2567,26 @@ your entire organization understands.
 
 
 <section
-id="about"
-class="dark"
+class="section dark-section"
+id="story"
 >
 
-<div class="container">
+<div class="wrap">
 
-<div class="eyebrow">
-Built for modern teams
+<div class="tag">
+Our story
 </div>
 
-<h2>
-One workspace.<br>
-Every signal.
+<h2 class="section-title">
+Coffee worth<br>
+slowing down for.
 </h2>
 
-<p>
-${escapeHTML(data.name)}
-connects your most important information
-and transforms it into actionable intelligence.
+<p class="section-copy">
+${escapeHTML(data.name)} was created
+around a simple idea:
+excellent coffee tastes even better
+in a place you actually want to stay.
 </p>
 
 </div>
@@ -1576,58 +2594,128 @@ and transforms it into actionable intelligence.
 </section>
 
 
-<section id="pricing">
-
-<div class="container">
-
-<div
-class="card"
-style="
-max-width:650px;
-margin:auto;
-text-align:center;
-"
+<section
+class="section"
+id="visit"
 >
 
-<div class="eyebrow">
-Simple pricing
+<div class="wrap">
+
+<div class="card">
+
+<div class="tag">
+Visit
 </div>
 
-<h2>
-Pro
+<h2 class="section-title">
+Come say hello.
 </h2>
 
-<div
-style="
-font-size:52px;
-font-weight:900;
-letter-spacing:-.06em;
-"
->
+<p class="section-copy">
+42 Market Street<br>
+Open daily · 7 AM – 6 PM
+</p>
 
-$29
-
-<span
-style="
-font-size:15px;
-color:#71717a;
-"
->
-/month
-</span>
+<button class="btn btn-primary">
+Get directions
+</button>
 
 </div>
 
-<p>
-Unlimited analytics,
-dashboards and AI insights.
-</p>
+</div>
+
+</section>
+
+</main>
+
+
+<footer>
+
+<div class="wrap">
+© 2026 ${escapeHTML(data.name)}
+</div>
+
+</footer>
+
+`
+);
+}
+
+
+/* =============================================================
+   SAAS WEBSITE
+============================================================= */
+
+function saasTemplate(data) {
+
+return createWebsiteDocument(
+data.name,
+"#7c3aed",
+`
+
+<header>
+<div class="wrap">
+
+<nav>
+
+<div class="logo">
+${escapeHTML(data.name)}
+</div>
+
+<div class="links">
+<a href="#features">Features</a>
+<a href="#platform">Platform</a>
+<a href="#pricing">Pricing</a>
+</div>
 
 <button
-class="button primary"
-style="width:100%"
+class="btn btn-primary"
+data-scroll="#pricing"
 >
-Start your free trial
+Start free
+</button>
+
+</nav>
+
+</div>
+</header>
+
+
+<main>
+
+<section class="hero">
+
+<div class="wrap hero-inner">
+
+<div class="tag">
+AI-powered workspace
+</div>
+
+<h1>
+Turn complexity
+into clarity.
+</h1>
+
+<p class="lead">
+A smarter workspace for teams
+that want to understand their data,
+move faster and make better decisions.
+</p>
+
+<div class="actions">
+
+<button
+class="btn btn-primary"
+data-scroll="#pricing"
+>
+Start building
+</button>
+
+<button
+class="btn btn-light"
+data-scroll="#features"
+>
+Explore platform
 </button>
 
 </div>
@@ -1637,36 +2725,175 @@ Start your free trial
 </section>
 
 
+<section
+class="section"
+id="features"
+>
+
+<div class="wrap">
+
+<div class="tag">
+Platform
+</div>
+
+<h2 class="section-title">
+Everything you need<br>
+to move faster.
+</h2>
+
+<div class="grid">
+
+<div class="card">
+<div class="card-icon">✦</div>
+<h3>AI Insights</h3>
+<p>
+Discover patterns and opportunities
+automatically.
+</p>
+</div>
+
+<div class="card">
+<div class="card-icon">◈</div>
+<h3>Live Analytics</h3>
+<p>
+Beautiful real-time dashboards
+for the metrics that matter.
+</p>
+</div>
+
+<div class="card">
+<div class="card-icon">↗</div>
+<h3>Smart Reports</h3>
+<p>
+Turn complex information
+into clear decisions.
+</p>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<section
+class="section dark-section"
+id="platform"
+>
+
+<div class="wrap">
+
+<div class="tag">
+Built for teams
+</div>
+
+<h2 class="section-title">
+One workspace.<br>
+Every signal.
+</h2>
+
+<p class="section-copy">
+${escapeHTML(data.name)}
+brings your most important information
+together and turns it into
+actionable intelligence.
+</p>
+
+</div>
+
+</section>
+
+
+<section
+class="section"
+id="pricing"
+>
+
+<div class="wrap">
+
+<div
+class="card"
+style="
+max-width:620px;
+margin:auto;
+text-align:center;
+"
+>
+
+<div class="tag">
+Start today
+</div>
+
+<h2 class="section-title">
+Pro
+</h2>
+
+<div
+style="
+font-size:52px;
+font-weight:800;
+letter-spacing:-.06em;
+margin:20px 0;
+"
+>
+$29
+<span
+style="
+font-size:14px;
+color:#737373;
+font-weight:500;
+"
+>
+/ month
+</span>
+</div>
+
+<p class="section-copy" style="margin:auto">
+Everything you need to build,
+analyze and grow.
+</p>
+
+<button
+class="btn btn-primary"
+style="width:100%;margin-top:20px"
+>
+Start free
+</button>
+
+</div>
+
+</div>
+
+</section>
+
 </main>
 
 
 <footer>
-
-<div class="container">
+<div class="wrap">
 © 2026 ${escapeHTML(data.name)}
 </div>
-
 </footer>
-        `,
 
-        "#7c3aed"
-      );
-    }
+`
+);
+}
 
 
-    /* =========================================================
-       PORTFOLIO TEMPLATE
-    ========================================================= */
+/* =============================================================
+   PORTFOLIO
+============================================================= */
 
-    function generatePortfolio(data) {
+function portfolioTemplate(data) {
 
-      return createDocument(
-        data.name,
+return createWebsiteDocument(
+data.name,
+"#2563eb",
+`
 
-        `
 <header>
-
-<div class="container">
+<div class="wrap">
 
 <nav>
 
@@ -1681,8 +2908,8 @@ ${escapeHTML(data.name)}
 </div>
 
 <button
-class="button primary"
-data-target="#contact"
+class="btn btn-primary"
+data-scroll="#contact"
 >
 Let's talk
 </button>
@@ -1690,11 +2917,7 @@ Let's talk
 </nav>
 
 </div>
-
 </header>
-
-
-<main>
 
 
 <section
@@ -1702,33 +2925,42 @@ class="hero"
 style="text-align:left"
 >
 
-<div class="container">
+<div class="wrap hero-inner">
 
-<div class="eyebrow">
-Product designer · Creative thinker
+<div class="tag">
+Product designer
 </div>
 
-<h1 style="margin-left:0">
-Designing digital experiences people love.
+<h1
+style="
+margin-left:0;
+max-width:950px;
+"
+>
+Designing things
+people love to use.
 </h1>
 
 <p
 class="lead"
-style="margin-left:0"
+style="
+margin-left:0;
+"
 >
-I design thoughtful digital products that
-turn complicated problems into simple,
-useful experiences.
+I create thoughtful digital products
+that make complicated ideas feel simple.
 </p>
 
 <div
 class="actions"
-style="justify-content:flex-start"
+style="
+justify-content:flex-start;
+"
 >
 
 <button
-class="button primary"
-data-target="#work"
+class="btn btn-primary"
+data-scroll="#work"
 >
 View my work
 </button>
@@ -1740,86 +2972,67 @@ View my work
 </section>
 
 
-<section id="work">
+<section
+class="section"
+id="work"
+>
 
-<div class="container">
+<div class="wrap">
 
-<div class="eyebrow">
+<div class="tag">
 Selected work
 </div>
 
-<h2>
+<h2 class="section-title">
 Projects with purpose.
 </h2>
 
 <div class="grid">
 
-
 <div class="card">
-
 <div
 style="
-height:150px;
-border-radius:14px;
+height:170px;
+border-radius:15px;
 background:#18181b;
 "
 ></div>
-
-<h3>
-Atlas Finance
-</h3>
-
+<h3>Atlas Finance</h3>
 <p>
-Making personal finance calmer
-and easier to understand.
+A calmer way to understand
+personal finance.
 </p>
-
 </div>
 
-
 <div class="card">
-
 <div
 style="
-height:150px;
-border-radius:14px;
-background:#d4d4d8;
+height:170px;
+border-radius:15px;
+background:#dbeafe;
 "
 ></div>
-
-<h3>
-Northstar
-</h3>
-
+<h3>Northstar</h3>
 <p>
 A collaborative workspace
-for modern product teams.
+for modern teams.
 </p>
-
 </div>
-
 
 <div class="card">
-
 <div
 style="
-height:150px;
-border-radius:14px;
-background:#ddd6fe;
+height:170px;
+border-radius:15px;
+background:#e5e7eb;
 "
 ></div>
-
-<h3>
-Studio
-</h3>
-
+<h3>Studio</h3>
 <p>
-A new digital experience
-for an independent creative company.
+A new digital home
+for a creative company.
 </p>
-
 </div>
-
 
 </div>
 
@@ -1829,25 +3042,25 @@ for an independent creative company.
 
 
 <section
+class="section dark-section"
 id="about"
-class="dark"
 >
 
-<div class="container">
+<div class="wrap">
 
-<div class="eyebrow">
+<div class="tag">
 About
 </div>
 
-<h2>
+<h2 class="section-title">
 Curiosity meets craft.
 </h2>
 
-<p>
-I work across product strategy,
-UX and visual design to create
-products that feel clear,
-useful and memorable.
+<p class="section-copy">
+I work across strategy,
+UX and visual design
+to create products that feel
+clear, useful and memorable.
 </p>
 
 </div>
@@ -1855,25 +3068,29 @@ useful and memorable.
 </section>
 
 
-<section id="contact">
+<section
+class="section"
+id="contact"
+>
 
-<div class="container">
+<div class="wrap">
 
 <div class="card">
 
-<div class="eyebrow">
+<div class="tag">
 Contact
 </div>
 
-<h2>
-Have a project in mind?
+<h2 class="section-title">
+Let's make something great.
 </h2>
 
-<p>
-Let's create something great together.
+<p class="section-copy">
+Have a project in mind?
+I'd love to hear about it.
 </p>
 
-<button class="button primary">
+<button class="btn btn-primary">
 Start a conversation
 </button>
 
@@ -1883,28 +3100,25 @@ Start a conversation
 
 </section>
 
-
-</main>
-        `,
-
-        "#2563eb"
-      );
-    }
+`
+);
+}
 
 
-    /* =========================================================
-       ECOMMERCE TEMPLATE
-    ========================================================= */
+/* =============================================================
+   STORE
+============================================================= */
 
-    function generateStore(data) {
+function storeTemplate(data) {
 
-      return createDocument(
-        data.name,
+return createWebsiteDocument(
+data.name,
+"#171717",
+`
 
-        `
 <header>
 
-<div class="container">
+<div class="wrap">
 
 <nav>
 
@@ -1913,14 +3127,14 @@ ${escapeHTML(data.name)}
 </div>
 
 <div class="links">
-<a href="#products">Shop</a>
-<a href="#about">About</a>
-<a href="#products">New arrivals</a>
+<a href="#shop">Shop</a>
+<a href="#story">Story</a>
+<a href="#shop">New</a>
 </div>
 
 <button
-class="button primary"
-data-target="#products"
+class="btn btn-primary"
+data-scroll="#shop"
 >
 Shop now
 </button>
@@ -1934,123 +3148,30 @@ Shop now
 
 <section class="hero">
 
-<div class="container">
+<div class="wrap hero-inner">
 
-<div class="eyebrow">
+<div class="tag">
 New collection
 </div>
 
 <h1>
-Designed for everyday life.
+Less noise.<br>
+Better things.
 </h1>
 
 <p class="lead">
 Thoughtfully designed essentials
-made with quality materials
-and a timeless point of view.
+made for everyday life.
 </p>
 
+<div class="actions">
+
 <button
-class="button primary"
-data-target="#products"
+class="btn btn-primary"
+data-scroll="#shop"
 >
 Explore collection
 </button>
-
-</div>
-
-</section>
-
-
-<section id="products">
-
-<div class="container">
-
-<div class="eyebrow">
-Featured
-</div>
-
-<h2>
-Our latest collection.
-</h2>
-
-<div class="grid">
-
-
-<div class="card">
-
-<div
-style="
-height:190px;
-background:#e4e4e7;
-border-radius:15px;
-"
-></div>
-
-<h3>
-Essential One
-</h3>
-
-<p>
-Simple, functional and beautifully made.
-</p>
-
-<strong>
-$79
-</strong>
-
-</div>
-
-
-<div class="card">
-
-<div
-style="
-height:190px;
-background:#d4d4d8;
-border-radius:15px;
-"
-></div>
-
-<h3>
-Essential Two
-</h3>
-
-<p>
-A modern staple designed to last.
-</p>
-
-<strong>
-$99
-</strong>
-
-</div>
-
-
-<div class="card">
-
-<div
-style="
-height:190px;
-background:#f4f4f5;
-border-radius:15px;
-"
-></div>
-
-<h3>
-Essential Three
-</h3>
-
-<p>
-Premium materials with effortless style.
-</p>
-
-<strong>
-$129
-</strong>
-
-</div>
-
 
 </div>
 
@@ -2060,50 +3181,136 @@ $129
 
 
 <section
-id="about"
-class="dark"
+class="section"
+id="shop"
 >
 
-<div class="container">
+<div class="wrap">
 
-<div class="eyebrow">
+<div class="tag">
+Featured
+</div>
+
+<h2 class="section-title">
+New arrivals.
+</h2>
+
+<div class="grid">
+
+<div class="card">
+
+<div
+style="
+height:220px;
+border-radius:15px;
+background:#ededed;
+"
+></div>
+
+<h3>Essential One</h3>
+<p>
+Simple, functional,
+beautifully made.
+</p>
+<strong>$79</strong>
+
+</div>
+
+
+<div class="card">
+
+<div
+style="
+height:220px;
+border-radius:15px;
+background:#d9d9d9;
+"
+></div>
+
+<h3>Essential Two</h3>
+<p>
+A modern staple
+designed to last.
+</p>
+<strong>$99</strong>
+
+</div>
+
+
+<div class="card">
+
+<div
+style="
+height:220px;
+border-radius:15px;
+background:#f3f3f3;
+"
+></div>
+
+<h3>Essential Three</h3>
+<p>
+Premium materials.
+Effortless design.
+</p>
+<strong>$129</strong>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<section
+class="section dark-section"
+id="story"
+>
+
+<div class="wrap">
+
+<div class="tag">
 Our philosophy
 </div>
 
-<h2>
+<h2 class="section-title">
 Buy better.<br>
 Keep longer.
 </h2>
 
-<p>
-We believe great products
-should be useful, beautiful
-and built to stay with you.
+<p class="section-copy">
+${escapeHTML(data.name)}
+creates useful, beautiful products
+designed to stay with you.
 </p>
 
 </div>
 
 </section>
-        `,
 
-        "#18181b"
-      );
-    }
+`
+);
+}
 
 
-    /* =========================================================
-       GENERIC TEMPLATE
-    ========================================================= */
+/* =============================================================
+   GENERIC
+============================================================= */
 
-    function generateGeneric(data, prompt) {
+function genericTemplate(
+  data,
+  prompt
+) {
 
-      return createDocument(
-        data.name,
+return createWebsiteDocument(
+data.name,
+"#7c3aed",
+`
 
-        `
 <header>
 
-<div class="container">
+<div class="wrap">
 
 <nav>
 
@@ -2114,12 +3321,12 @@ ${escapeHTML(data.name)}
 <div class="links">
 <a href="#features">Features</a>
 <a href="#about">About</a>
-<a href="#contact">Contact</a>
+<a href="#start">Get Started</a>
 </div>
 
 <button
-class="button primary"
-data-target="#contact"
+class="btn btn-primary"
+data-scroll="#start"
 >
 Get started
 </button>
@@ -2133,32 +3340,33 @@ Get started
 
 <section class="hero">
 
-<div class="container">
+<div class="wrap hero-inner">
 
-<div class="eyebrow">
+<div class="tag">
 Built with BuildPro AI
 </div>
 
 <h1>
-Turn your idea into something remarkable.
+Turn your idea
+into something real.
 </h1>
 
 <p class="lead">
-${escapeHTML(prompt.slice(0, 300))}
+${escapeHTML(prompt.slice(0,250))}
 </p>
 
 <div class="actions">
 
 <button
-class="button primary"
-data-target="#features"
+class="btn btn-primary"
+data-scroll="#features"
 >
 Explore
 </button>
 
 <button
-class="button secondary"
-data-target="#contact"
+class="btn btn-light"
+data-scroll="#start"
 >
 Get started
 </button>
@@ -2170,57 +3378,48 @@ Get started
 </section>
 
 
-<section id="features">
+<section
+class="section"
+id="features"
+>
 
-<div class="container">
+<div class="wrap">
 
-<div class="eyebrow">
-Features
+<div class="tag">
+Built differently
 </div>
 
-<h2>
-Designed for what comes next.
+<h2 class="section-title">
+Simple. Fast. Beautiful.
 </h2>
 
 <div class="grid">
 
 <div class="card">
-
-<h3>
-Fast
-</h3>
-
+<div class="card-icon">✦</div>
+<h3>Intelligent</h3>
 <p>
-A streamlined experience focused on speed.
+Designed around what your
+users actually need.
 </p>
-
 </div>
 
-
 <div class="card">
-
-<h3>
-Flexible
-</h3>
-
+<div class="card-icon">↗</div>
+<h3>Fast</h3>
 <p>
-Designed to adapt to your users and business.
+A focused experience
+that keeps things moving.
 </p>
-
 </div>
 
-
 <div class="card">
-
-<h3>
-Beautiful
-</h3>
-
+<div class="card-icon">◇</div>
+<h3>Flexible</h3>
 <p>
-A polished responsive experience
-across devices.
+Built to grow
+alongside your idea.
 </p>
-
 </div>
 
 </div>
@@ -2231,23 +3430,24 @@ across devices.
 
 
 <section
+class="section dark-section"
 id="about"
-class="dark"
 >
 
-<div class="container">
+<div class="wrap">
 
-<div class="eyebrow">
+<div class="tag">
 About
 </div>
 
-<h2>
-Built around your idea.
+<h2 class="section-title">
+Built around your vision.
 </h2>
 
-<p>
-BuildPro AI generated this responsive
-starting point from your description.
+<p class="section-copy">
+BuildPro AI created this
+responsive starting point
+directly from your description.
 </p>
 
 </div>
@@ -2255,21 +3455,24 @@ starting point from your description.
 </section>
 
 
-<section id="contact">
+<section
+class="section"
+id="start"
+>
 
-<div class="container">
+<div class="wrap">
 
 <div class="card">
 
-<div class="eyebrow">
+<div class="tag">
 Get started
 </div>
 
-<h2>
-Ready for the next step?
+<h2 class="section-title">
+Ready for what's next?
 </h2>
 
-<button class="button primary">
+<button class="btn btn-primary">
 Continue
 </button>
 
@@ -2278,663 +3481,595 @@ Continue
 </div>
 
 </section>
-        `,
 
-        "#7c3aed"
+`
+);
+}
+
+
+/* =============================================================
+   SIMULATED GENERATION
+============================================================= */
+
+function createGeneratedWebsite(prompt) {
+
+  const data =
+    analyzePrompt(prompt);
+
+  switch (data.type) {
+
+    case "coffee":
+      return coffeeTemplate(data);
+
+    case "saas":
+      return saasTemplate(data);
+
+    case "portfolio":
+      return portfolioTemplate(data);
+
+    case "store":
+      return storeTemplate(data);
+
+    default:
+      return genericTemplate(
+        data,
+        prompt
       );
-    }
+  }
+}
 
 
-    /* =========================================================
-       SIMULATED AI ENGINE
-    ========================================================= */
+/* =============================================================
+   CHAT
+============================================================= */
 
-    function simulateGeneration(prompt) {
+function addUserMessage(text) {
 
-      const data = analyzePrompt(prompt);
+  const container =
+    document.createElement("div");
 
-      switch (data.type) {
+  container.className =
+    "message user-message";
 
-        case "coffee":
-          return generateCoffee(data);
+  container.innerHTML = `
+    <div class="user-bubble">
+      ${escapeHTML(text)}
+    </div>
+  `;
 
-        case "saas":
-          return generateSaaS(data);
+  $("#chatMessages")
+    .appendChild(container);
 
-        case "portfolio":
-          return generatePortfolio(data);
-
-        case "store":
-          return generateStore(data);
-
-        default:
-          return generateGeneric(
-            data,
-            prompt
-          );
-
-      }
-    }
+  $("#chatMessages").scrollTop =
+    $("#chatMessages").scrollHeight;
+}
 
 
-    /* =========================================================
-       GENERATE PROJECT
-    ========================================================= */
+function addAIMessage(text) {
 
-    async function generateProject(prompt) {
+  const container =
+    document.createElement("div");
 
-      const cleanPrompt =
-        String(prompt || "").trim();
+  container.className =
+    "message ai-message";
 
-      if (!cleanPrompt) {
+  container.innerHTML = `
+    <div class="ai-icon">
+      AI
+    </div>
 
-        elements.prompt.focus();
-        return;
+    <div class="ai-content">
+      ${escapeHTML(text)}
+    </div>
+  `;
 
-      }
+  $("#chatMessages")
+    .appendChild(container);
 
-      if (state.generating) {
-        return;
-      }
+  $("#chatMessages").scrollTop =
+    $("#chatMessages").scrollHeight;
+}
 
-      if (state.credits <= 0) {
 
-        addMessage(
-          "ai",
-          "Your free builds are finished. Upgrade to BuildPro Pro for unlimited builds."
-        );
+/* =============================================================
+   GENERATION
+============================================================= */
 
-        openModal(
-          elements.pricingModal
-        );
+async function generate(
+  prompt,
+  fromHome = false
+) {
 
-        return;
-      }
+  const cleanPrompt =
+    String(prompt || "").trim();
 
-      addMessage(
-        "user",
+  if (
+    !cleanPrompt ||
+    state.generating
+  ) {
+    return;
+  }
+
+  state.generating = true;
+  state.currentPrompt = cleanPrompt;
+
+  const project =
+    analyzePrompt(cleanPrompt);
+
+  state.projectName =
+    project.name;
+
+  if (fromHome) {
+
+    $("#homeGenerateBtn").disabled =
+      true;
+
+    $("#homeGenerateBtn").innerHTML = `
+      <span class="loader-dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    `;
+
+    await new Promise(
+      resolve =>
+        setTimeout(resolve, 600)
+    );
+
+    $("#homeScreen")
+      .classList
+      .add("hidden");
+
+    $("#builderScreen")
+      .classList
+      .remove("hidden");
+
+  }
+
+  $("#projectTitle").textContent =
+    project.name;
+
+  addUserMessage(cleanPrompt);
+
+  $("#builderStatus").textContent =
+    "Generating...";
+
+  $("#builderSend").disabled =
+    true;
+
+  addAIMessage(
+    "Building your project..."
+  );
+
+  try {
+
+    /*
+      Simulated AI generation.
+
+      Later this function can be replaced
+      by a secure backend API request.
+    */
+
+    await new Promise(
+      resolve =>
+        setTimeout(resolve, 850)
+    );
+
+    const code =
+      createGeneratedWebsite(
         cleanPrompt
       );
 
-      if (elements.examples) {
+    state.generatedCode =
+      code;
 
-        elements.examples.remove();
-        elements.examples = null;
+    $("#previewFrame").srcdoc =
+      code;
 
-      }
+    $("#builderStatus").textContent =
+      "Generated successfully";
 
-      elements.prompt.value = "";
-      updateCharacterCount();
+    addAIMessage(
+      `${project.name} is ready. Tell me what you want to change and I'll rebuild the preview.`
+    );
 
-      setGenerating(true);
+  } catch (error) {
 
-      try {
+    console.error(error);
 
-        /*
-          Simulated AI delay.
+    $("#builderStatus").textContent =
+      "Generation failed";
 
-          This can later be replaced with:
-          fetch("/api/generate")
-        */
+    addAIMessage(
+      "Something went wrong. Please try again."
+    );
 
-        await new Promise(
-          resolve => setTimeout(resolve, 850)
-        );
+  } finally {
 
-        const html =
-          simulateGeneration(cleanPrompt);
+    state.generating = false;
 
-        const project =
-          analyzePrompt(cleanPrompt);
+    $("#builderSend").disabled =
+      false;
 
-        state.code = html;
-        state.projectName = project.name;
+    $("#homeGenerateBtn").disabled =
+      false;
 
-        elements.preview.srcdoc =
-          html;
+    $("#homeGenerateBtn").innerHTML = `
+      <span class="text">Build it</span>
+      <span>↑</span>
+    `;
 
-        elements.preview.classList.remove(
-          "hidden"
-        );
+  }
+}
 
-        elements.emptyPreview.classList.add(
-          "hidden"
-        );
 
-        elements.projectName.textContent =
-          project.name;
+/* =============================================================
+   HOME FORM
+============================================================= */
 
-        const slug =
-          project.name
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, "-")
-            .replace(/^-|-$/g, "");
+$("#homeForm").addEventListener(
+  "submit",
+  event => {
 
-        elements.previewAddress.textContent =
-          `${slug || "project"}.buildpro.preview`;
+    event.preventDefault();
 
-        state.credits =
-          Math.max(
-            0,
-            state.credits - 1
-          );
+    const prompt =
+      $("#homePrompt").value;
 
-        saveCredits();
+    if (!prompt.trim()) {
 
-        elements.status.textContent =
-          "Generated successfully";
-
-        addMessage(
-          "ai",
-          `${project.name} is ready. You can preview it, view the generated code, switch device sizes, or export the HTML.`
-        );
-
-      } catch (error) {
-
-        console.error(
-          "BuildPro generation error:",
-          error
-        );
-
-        elements.status.textContent =
-          "Generation failed";
-
-        addMessage(
-          "ai",
-          "Something went wrong while generating your project. Please try again."
-        );
-
-      } finally {
-
-        setGenerating(false);
-
-      }
+      $("#homePrompt").focus();
+      return;
     }
 
+    generate(
+      prompt,
+      true
+    );
 
-    /* =========================================================
-       COPY CODE
-    ========================================================= */
+  }
+);
 
-    async function copyCode() {
 
-      if (!state.code) {
+/* =============================================================
+   BUILDER FORM
+============================================================= */
 
-        addMessage(
-          "ai",
-          "Generate a project before copying the source code."
-        );
+$("#builderForm").addEventListener(
+  "submit",
+  event => {
 
-        return;
-      }
+    event.preventDefault();
 
-      try {
+    const prompt =
+      $("#builderPrompt").value;
 
-        await navigator.clipboard.writeText(
-          state.code
-        );
-
-        elements.status.textContent =
-          "Code copied to clipboard";
-
-      } catch {
-
-        /*
-          Clipboard may not work in some
-          non-HTTPS environments.
-
-          Show the code modal instead.
-        */
-
-        elements.codeOutput.textContent =
-          state.code;
-
-        openModal(
-          elements.codeModal
-        );
-
-      }
+    if (!prompt.trim()) {
+      return;
     }
 
+    $("#builderPrompt").value =
+      "";
 
-    /* =========================================================
-       DOWNLOAD PROJECT
-    ========================================================= */
+    generate(
+      prompt,
+      false
+    );
 
-    function downloadProject() {
+  }
+);
 
-      if (!state.code) {
 
-        addMessage(
-          "ai",
-          "Generate a project before downloading it."
-        );
+$("#builderPrompt").addEventListener(
+  "keydown",
+  event => {
 
-        return;
-      }
+    if (
+      event.key === "Enter" &&
+      (
+        event.metaKey ||
+        event.ctrlKey
+      )
+    ) {
 
-      const blob =
-        new Blob(
-          [state.code],
-          {
-            type:
-              "text/html;charset=utf-8"
-          }
-        );
+      event.preventDefault();
+
+      $("#builderForm")
+        .requestSubmit();
+
+    }
+
+  }
+);
+
+
+/* =============================================================
+   HOME / BUILDER NAVIGATION
+============================================================= */
+
+$("#backHomeBtn").addEventListener(
+  "click",
+  () => {
+
+    $("#builderScreen")
+      .classList
+      .add("hidden");
+
+    $("#homeScreen")
+      .classList
+      .remove("hidden");
+
+  }
+);
+
+
+/* =============================================================
+   DEVICE PREVIEW
+============================================================= */
+
+function desktopPreview() {
+
+  $("#previewShell")
+    .classList
+    .remove("mobile");
+
+  $("#previewDesktopBtn")
+    .classList
+    .add("active");
+
+  $("#previewMobileBtn")
+    .classList
+    .remove("active");
+}
+
+
+function mobilePreview() {
+
+  $("#previewShell")
+    .classList
+    .add("mobile");
+
+  $("#previewMobileBtn")
+    .classList
+    .add("active");
+
+  $("#previewDesktopBtn")
+    .classList
+    .remove("active");
+}
+
+
+$("#previewDesktopBtn")
+  .addEventListener(
+    "click",
+    desktopPreview
+  );
+
+
+$("#desktopViewBtn")
+  .addEventListener(
+    "click",
+    desktopPreview
+  );
+
+
+$("#previewMobileBtn")
+  .addEventListener(
+    "click",
+    mobilePreview
+  );
+
+
+/* =============================================================
+   CODE
+============================================================= */
+
+$("#codeBtn").addEventListener(
+  "click",
+  () => {
+
+    if (!state.generatedCode) {
+
+      addAIMessage(
+        "Generate a project first."
+      );
+
+      return;
+    }
+
+    $("#codeOutput").textContent =
+      state.generatedCode;
+
+    openModal("codeModal");
+
+  }
+);
+
+
+async function copyGeneratedCode() {
+
+  if (!state.generatedCode) {
+    return;
+  }
+
+  try {
+
+    await navigator.clipboard.writeText(
+      state.generatedCode
+    );
+
+    $("#builderStatus").textContent =
+      "Code copied";
+
+  } catch {
+
+    $("#codeOutput").textContent =
+      state.generatedCode;
+
+    openModal("codeModal");
+
+  }
+}
+
+
+$("#copyCodeBtn")
+  .addEventListener(
+    "click",
+    copyGeneratedCode
+  );
+
+
+$("#exportCopyBtn")
+  .addEventListener(
+    "click",
+    copyGeneratedCode
+  );
+
+
+/* =============================================================
+   PUBLISH
+============================================================= */
+
+$("#publishBtn").addEventListener(
+  "click",
+  () => {
+
+    if (!state.generatedCode) {
+
+      addAIMessage(
+        "Generate your project before publishing."
+      );
+
+      return;
+    }
+
+    openModal("publishModal");
+
+  }
+);
+
+
+$("#downloadBtn").addEventListener(
+  "click",
+  () => {
+
+    if (!state.generatedCode) {
+      return;
+    }
+
+    const blob =
+      new Blob(
+        [state.generatedCode],
+        {
+          type:
+            "text/html;charset=utf-8"
+        }
+      );
+
+    const url =
+      URL.createObjectURL(blob);
+
+    const link =
+      document.createElement("a");
+
+    const filename =
+      state.projectName
+        .toLowerCase()
+        .replace(
+          /[^a-z0-9]+/g,
+          "-"
+        )
+        .replace(
+          /^-|-$/g,
+          ""
+        ) || "buildpro-project";
+
+    link.href = url;
+    link.download =
+      filename + ".html";
+
+    document.body.appendChild(link);
+
+    link.click();
+    link.remove();
+
+    setTimeout(
+      () =>
+        URL.revokeObjectURL(url),
+      1000
+    );
+
+  }
+);
+
+
+$("#deployBtn").addEventListener(
+  "click",
+  () => {
+
+    alert(
+      "The project is ready to export. Real one-click deployment requires a secure hosting backend."
+    );
+
+  }
+);
+
+
+/* =============================================================
+   STRIPE
+============================================================= */
+
+$("#checkoutBtn").addEventListener(
+  "click",
+  () => {
+
+    const link =
+      CONFIG.stripePaymentLink.trim();
+
+    if (!link) {
+
+      alert(
+        "Stripe is not connected yet. Add your Stripe Payment Link to CONFIG.stripePaymentLink."
+      );
+
+      return;
+    }
+
+    try {
 
       const url =
-        URL.createObjectURL(blob);
+        new URL(link);
 
-      const anchor =
-        document.createElement("a");
+      if (
+        url.protocol !== "https:"
+      ) {
+        throw new Error();
+      }
 
-      const filename =
-        state.projectName
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/^-|-$/g, "") ||
-        "buildpro-project";
+      window.location.href =
+        url.toString();
 
-      anchor.href = url;
+    } catch {
 
-      anchor.download =
-        `${filename}.html`;
-
-      document.body.appendChild(
-        anchor
+      alert(
+        "The Stripe Payment Link is invalid."
       );
 
-      anchor.click();
-      anchor.remove();
-
-      setTimeout(
-        () => URL.revokeObjectURL(url),
-        1000
-      );
-
-      elements.status.textContent =
-        "Project downloaded";
     }
 
+  }
+);
 
-    /* =========================================================
-       STRIPE CHECKOUT
-    ========================================================= */
 
-    function openCheckout() {
+/* =============================================================
+   INITIALIZE
+============================================================= */
 
-      const link =
-        BUILDPRO_CONFIG.stripePaymentLink.trim();
-
-      if (!link) {
-
-        alert(
-          "Stripe is not connected yet.\n\nAdd your Stripe Payment Link inside BUILDPRO_CONFIG.stripePaymentLink."
-        );
-
-        return;
-      }
-
-      try {
-
-        const url =
-          new URL(link);
-
-        if (
-          url.protocol !== "https:"
-        ) {
-          throw new Error(
-            "HTTPS required"
-          );
-        }
-
-        window.location.href =
-          url.toString();
-
-      } catch {
-
-        alert(
-          "Your Stripe Payment Link is invalid. Add a valid HTTPS Stripe Payment Link."
-        );
-
-      }
-    }
-
-
-    /* =========================================================
-       NEW PROJECT
-    ========================================================= */
-
-    function newProject() {
-
-      state.code = "";
-      state.projectName =
-        "Untitled project";
-
-      elements.preview.srcdoc =
-        "";
-
-      elements.preview.classList.add(
-        "hidden"
-      );
-
-      elements.emptyPreview.classList.remove(
-        "hidden"
-      );
-
-      elements.projectName.textContent =
-        "Untitled project";
-
-      elements.previewAddress.textContent =
-        "preview.buildpro.ai";
-
-      elements.status.textContent =
-        "Ready";
-
-      elements.prompt.value =
-        "";
-
-      updateCharacterCount();
-
-      addMessage(
-        "ai",
-        "New project started. What would you like to build?"
-      );
-
-      elements.prompt.focus();
-    }
-
-
-    /* =========================================================
-       EVENT LISTENERS
-    ========================================================= */
-
-    elements.form.addEventListener(
-      "submit",
-      event => {
-
-        event.preventDefault();
-
-        generateProject(
-          elements.prompt.value
-        );
-
-      }
-    );
-
-
-    elements.prompt.addEventListener(
-      "input",
-      updateCharacterCount
-    );
-
-
-    elements.prompt.addEventListener(
-      "keydown",
-      event => {
-
-        if (
-          event.key === "Enter" &&
-          (
-            event.ctrlKey ||
-            event.metaKey
-          )
-        ) {
-
-          event.preventDefault();
-
-          elements.form.requestSubmit();
-
-        }
-
-      }
-    );
-
-
-    $$(".example").forEach(
-      button => {
-
-        button.addEventListener(
-          "click",
-          () => {
-
-            elements.prompt.value =
-              button.dataset.prompt || "";
-
-            updateCharacterCount();
-
-            elements.prompt.focus();
-
-          }
-        );
-
-      }
-    );
-
-
-    $("#desktopButton").addEventListener(
-      "click",
-      () => {
-
-        elements.preview.style.width =
-          "100%";
-
-        $("#desktopButton").classList.add(
-          "bg-zinc-800"
-        );
-
-        $("#mobileButton").classList.remove(
-          "bg-zinc-800"
-        );
-
-      }
-    );
-
-
-    $("#mobileButton").addEventListener(
-      "click",
-      () => {
-
-        elements.preview.style.width =
-          "390px";
-
-        $("#mobileButton").classList.add(
-          "bg-zinc-800"
-        );
-
-        $("#desktopButton").classList.remove(
-          "bg-zinc-800"
-        );
-
-      }
-    );
-
-
-    $("#codeButton").addEventListener(
-      "click",
-      () => {
-
-        if (!state.code) {
-
-          addMessage(
-            "ai",
-            "Generate a project first, then you can view its source code."
-          );
-
-          return;
-        }
-
-        elements.codeOutput.textContent =
-          state.code;
-
-        openModal(
-          elements.codeModal
-        );
-
-      }
-    );
-
-
-    $("#publishButton").addEventListener(
-      "click",
-      () => {
-
-        if (!state.code) {
-
-          addMessage(
-            "ai",
-            "Generate a project before publishing or exporting it."
-          );
-
-          return;
-        }
-
-        openModal(
-          elements.publishModal
-        );
-
-      }
-    );
-
-
-    $("#copyCodeButton").addEventListener(
-      "click",
-      copyCode
-    );
-
-
-    $("#publishCopyButton").addEventListener(
-      "click",
-      copyCode
-    );
-
-
-    $("#downloadButton").addEventListener(
-      "click",
-      downloadProject
-    );
-
-
-    $("#deployButton").addEventListener(
-      "click",
-      () => {
-
-        alert(
-          "Your generated HTML is ready to export.\n\nReal one-click deployment requires a server-side deployment integration."
-        );
-
-      }
-    );
-
-
-    $("#upgradeButton").addEventListener(
-      "click",
-      () => {
-
-        openModal(
-          elements.pricingModal
-        );
-
-      }
-    );
-
-
-    $("#checkoutButton").addEventListener(
-      "click",
-      openCheckout
-    );
-
-
-    $("#newProjectButton").addEventListener(
-      "click",
-      newProject
-    );
-
-
-    $$("[data-close]").forEach(
-      button => {
-
-        button.addEventListener(
-          "click",
-          () => {
-
-            const modal =
-              document.getElementById(
-                button.dataset.close
-              );
-
-            closeModal(modal);
-
-          }
-        );
-
-      }
-    );
-
-
-    [
-      elements.codeModal,
-      elements.publishModal,
-      elements.pricingModal
-    ].forEach(
-      modal => {
-
-        modal.addEventListener(
-          "click",
-          event => {
-
-            if (
-              event.target === modal
-            ) {
-
-              closeModal(modal);
-
-            }
-
-          }
-        );
-
-      }
-    );
-
-
-    document.addEventListener(
-      "keydown",
-      event => {
-
-        if (
-          event.key === "Escape"
-        ) {
-
-          closeModal(
-            elements.codeModal
-          );
-
-          closeModal(
-            elements.publishModal
-          );
-
-          closeModal(
-            elements.pricingModal
-          );
-
-        }
-
-      }
-    );
-
-
-    /* =========================================================
-       INITIALIZATION
-    ========================================================= */
-
-    saveCredits();
-    updateCharacterCount();
-
-    console.log(
-      "BuildPro AI initialized successfully."
-    );
-  </script>
+console.log(
+  "BuildPro AI loaded successfully."
+);
+</script>
 
 </body>
 </html>
