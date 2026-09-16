@@ -1,1 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BuildPro AI</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <section id="home" class="home">
+    <nav class="nav">
+      <a class="brand" href="#"><span class="logo"></span>BuildPro AI</a>
+      <div class="nav-right">
+        <span class="badge">Real AI Builder</span>
+        <button id="openBuilderTop" class="ghost">Open Builder</button>
+      </div>
+    </nav>
 
+    <main class="hero">
+      <div class="eyebrow">AI SOFTWARE BUILDER</div>
+      <h1>Turn an idea into a<br><span>working web app.</span></h1>
+      <p class="hero-copy">Describe what you want. BuildPro plans it, writes the code, checks it, and renders a live application you can keep editing with AI.</p>
+
+      <form id="homeForm" class="composer hero-composer">
+        <textarea id="homePrompt" rows="4" placeholder="Build a task management SaaS with a dashboard, kanban board, calendar, team page and dark mode..." required></textarea>
+        <div class="composer-bottom">
+          <div class="mode"><span class="pulse"></span> GPT-5.6</div>
+          <button id="homeBuildBtn" class="primary" type="submit">Build app <span>↑</span></button>
+        </div>
+      </form>
+
+      <div class="suggestions">
+        <button data-prompt="Build a modern CRM web app with a dashboard, contacts, deals pipeline, analytics, settings and dark mode. Make all interactions work in the browser.">CRM dashboard</button>
+        <button data-prompt="Build a premium travel booking web app with destination search, hotel cards, favorites, booking modal, trips page and user profile.">Travel app</button>
+        <button data-prompt="Build a project management app with kanban boards, tasks, team members, progress analytics and settings.">Project manager</button>
+        <button data-prompt="Build an ecommerce web app with product browsing, search, category filters, product details, cart and checkout UI.">Online store</button>
+      </div>
+    </main>
+  </section>
+
+  <section id="builder" class="builder hidden">
+    <header class="builder-top">
+      <div class="builder-left">
+        <button id="backHome" class="icon-btn" title="Home">←</button>
+        <div class="brand small"><span class="logo"></span>BuildPro AI</div>
+        <span class="divider"></span>
+        <input id="projectTitle" class="project-title" value="Untitled Project" />
+      </div>
+      <div class="builder-actions">
+        <span id="modelBadge" class="model-badge">GPT-5.6</span>
+        <button id="downloadBtn" class="ghost">Export HTML</button>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <aside class="agent-panel">
+        <div class="panel-head">
+          <div>
+            <strong>Build Agent</strong>
+            <span id="agentStatus">Ready</span>
+          </div>
+          <span id="statusDot" class="status-dot"></span>
+        </div>
+
+        <div id="conversation" class="conversation">
+          <div class="message assistant">
+            <div class="message-label">BUILDPRO</div>
+            <p>Tell me what you want to build. I’ll generate the application and keep the current code in context for follow-up edits.</p>
+          </div>
+        </div>
+
+        <div id="activity" class="activity hidden">
+          <div class="activity-title"><span class="spinner"></span><span id="activityTitle">Building</span></div>
+          <div id="steps" class="steps"></div>
+        </div>
+
+        <form id="builderForm" class="composer builder-composer">
+          <textarea id="builderPrompt" rows="3" placeholder="Ask BuildPro to build or change something..." required></textarea>
+          <div class="composer-bottom">
+            <span class="hint">⌘/Ctrl + Enter</span>
+            <button id="builderSend" class="send" type="submit">↑</button>
+          </div>
+        </form>
+      </aside>
+
+      <main class="preview-panel">
+        <div class="preview-toolbar">
+          <div class="tabs">
+            <button class="tab active" data-view="preview">Preview</button>
+            <button class="tab" data-view="code">Code</button>
+          </div>
+          <div class="viewport-controls">
+            <button id="desktopBtn" class="tool active">Desktop</button>
+            <button id="mobileBtn" class="tool">Mobile</button>
+            <button id="refreshBtn" class="tool">↻</button>
+          </div>
+        </div>
+
+        <div id="previewView" class="preview-stage">
+          <div id="previewShell" class="preview-shell">
+            <div class="browser-bar">
+              <span></span><span></span><span></span>
+              <div class="address">buildpro-preview.local</div>
+            </div>
+            <iframe id="previewFrame" sandbox="allow-scripts allow-forms allow-modals"></iframe>
+          </div>
+          <div id="emptyPreview" class="empty-preview">
+            <div class="empty-icon">◇</div>
+            <h2>Your app will appear here</h2>
+            <p>BuildPro generates real code from your prompt and renders it in this sandbox.</p>
+          </div>
+        </div>
+
+        <div id="codeView" class="code-view hidden">
+          <div class="code-head">
+            <span>index.html</span>
+            <button id="copyCodeBtn" class="ghost">Copy</button>
+          </div>
+          <pre><code id="codeOutput">// Generated code will appear here.</code></pre>
+        </div>
+      </main>
+    </div>
+  </section>
+
+  <div id="toast" class="toast"></div>
+  <script src="/app.js"></script>
+</body>
+</html>
