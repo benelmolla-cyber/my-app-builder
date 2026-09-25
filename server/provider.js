@@ -5,7 +5,8 @@ function ensureToken(){if(!process.env.REPLICATE_API_TOKEN)throw new Error("REPL
 export async function createPrediction({type,prompt,aspectRatio,idempotencyKey},{fetcher=fetch}={}){
   ensureToken();
   const input=type==="image"?{prompt,aspect_ratio:aspectRatio,num_outputs:1,output_format:"webp"}:{prompt,aspect_ratio:aspectRatio==="9:16"?"9:16":"16:9"};
-  const response=await fetcher(`https://api.replicate.com/v1/models/${MODELS[type]}/predictions`,{method:"POST",headers:{...headers(),"Idempotency-Key":idempotencyKey},body:JSON.stringify({input})});
+  const webhook=process.env.APP_URL&&process.env.REPLICATE_WEBHOOK_SECRET?`${process.env.APP_URL.replace(/\/$/,"")}/api/replicate-webhook?secret=${encodeURIComponent(process.env.REPLICATE_WEBHOOK_SECRET)}`:undefined;
+  const response=await fetcher(`https://api.replicate.com/v1/models/${MODELS[type]}/predictions`,{method:"POST",headers:{...headers(),"Idempotency-Key":idempotencyKey},body:JSON.stringify({input,...(webhook?{webhook,webhook_events_filter:["completed"]}:{})})});
   const result=await response.json();
   if(!response.ok||!result.id)throw new Error(result.detail||result.error||"Provider rejected the request.");
   return {id:result.id,status:result.status};

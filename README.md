@@ -13,7 +13,7 @@ Sparky is a mobile-first, dark creative studio for real AI image and short-video
 ## Accounts and settings required before launch
 
 1. **Supabase:** create a project, run [`supabase/schema.sql`](supabase/schema.sql) in its SQL editor, enable Email auth, choose whether email confirmation is required, and set the Site URL plus redirect URLs to the production domain. The schema creates a private `generated-media` bucket. Copy the URL, anon key, and service-role key.
-2. **Replicate:** create an account with billing enabled and an API token. Confirm the configured image and video models are available in your region/account and review their current pricing and safety policies.
+2. **Replicate:** create an account with billing enabled and an API token. Generate a long random `REPLICATE_WEBHOOK_SECRET`; Sparky registers the resulting authenticated completion URL on each prediction. Confirm the configured image and video models are available in your region/account and review their current pricing and safety policies.
 3. **Stripe:** create a recurring product/price (the interval is your choice), enable the Customer Portal (including cancellation), copy its price ID, and add a webhook endpoint at `https://YOUR_DOMAIN/api/stripe-webhook`. Pin the endpoint to API version `2025-06-30.basil`; subscribe it to `invoice.paid`, `customer.subscription.created`, `customer.subscription.updated`, and `customer.subscription.deleted`; copy the signing secret. The installed Stripe SDK is pinned to `18.5.0` and tests cover both Basil and legacy invoice subscription shapes.
 4. **Owner:** set `OWNER_EMAIL` to the exact, confirmed Supabase login email. Owner access only bypasses Sparky credit deductions; it does not remove Replicate costs.
 5. **Vercel:** import this repository, keep the root directory as-is, add every variable from `.env.example` for Production (use test Stripe keys in Preview), and set `APP_URL` to the canonical HTTPS URL.
@@ -41,3 +41,9 @@ Use Stripe test mode and a non-production Replicate account. Automated provider 
 The browser receives only the Supabase anon key. Service-role, Replicate, Stripe, and cron secrets remain in serverless functions. API requests validate the Supabase access token server-side. Row Level Security prevents users from reading another user's profile or generations, while all balance mutations require the service role and execute as locked database transactions.
 
 The recovery worker copies provider output into the private Supabase Storage bucket. Authenticated media endpoints verify ownership and issue a 60-second signed download URL; provider URLs are never persisted. Configure Replicate's output retention to the shortest practical duration as an additional privacy measure.
+
+## Background processing on Vercel Hobby
+
+Vercel Hobby cron jobs cannot run every minute. Normal background completion instead uses Replicate's `completed` webhook, authenticated with `REPLICATE_WEBHOOK_SECRET`; active browsers also finalize work while polling. The configured `17 3 * * *` schedule runs the protected recovery worker once per day, within the Hobby allowance, as a final safety net for missing webhooks and abandoned tabs. It atomically refunds orphaned, failed, or timed-out work. Cron timing is not guaranteed to the minute on Hobby, so recovery after both a missed webhook and a closed browser may be delayed until the daily execution. No paid Vercel upgrade is required.
+
+The three exact rewrites expose `/`, `/app.js`, and `/styles.css` from the repository's `public` directory without using the unsupported top-level `public` configuration property. API paths are not rewritten and continue to resolve as Vercel Functions.

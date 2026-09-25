@@ -1,6 +1,6 @@
-import {randomUUID} from "node:crypto";
 import {requireUser,service} from "../server/supabase.js";
 import {createPrediction} from "../server/provider.js";
+import {finishGeneration} from "../server/jobs.js";
 import {allowMethod,sendError} from "../server/http.js";
 
 export const config={maxDuration:30};
@@ -30,5 +30,19 @@ export default async function handler(req,res){
   }
 }
 async function getStatus(req,res){
-  try{const user=await requireUser(req); const id=String(req.query?.id||""); const db=service(); const {data,error}=await db.from("generations").select("id,kind,prompt,status,storage_path,error,created_at").eq("id",id).eq("user_id",user.id).single(); if(error||!data)throw Object.assign(new Error("Generation not found."),{status:404}); let downloadUrl=null; if(data.status==="succeeded")downloadUrl=`/api/media?id=${encodeURIComponent(data.id)}`; res.status(200).json({generation:{...data,storage_path:undefined,downloadUrl}});}catch(error){sendError(res,error);}
+  try{
+    const user=await requireUser(req); const id=String(req.query?.id||""); const db=service();
+    const fields="id,user_id,kind,prompt,status,storage_path,error,created_at,updated_at,provider_prediction_id,attempt_count";
+    let {data,error}=await db.from("generations").select(fields).eq("id",id).eq("user_id",user.id).single();
+    if(error||!data)throw Object.assign(new Error("Generation not found."),{status:404});
+    // Polling clients finish their own provider job immediately. The daily cron remains
+    // a no-cost-plan safety net for jobs whose browser was closed.
+    if(data.status==="processing"&&Date.now()-new Date(data.updated_at).getTime()>30*60_000)await db.rpc("fail_and_refund_generation",{p_generation_id:data.id,p_reason:"Generation exceeded the 30 minute processing limit."});
+    else if(data.status==="processing")await finishGeneration(data,{recordFailure:false});
+    if(data.status==="submitting"&&Date.now()-new Date(data.updated_at).getTime()>5*60_000)await db.rpc("fail_and_refund_generation",{p_generation_id:data.id,p_reason:"Submission recovery timeout; no provider job was recorded."});
+    if(["processing","submitting"].includes(data.status)){const refreshed=await db.from("generations").select(fields).eq("id",id).eq("user_id",user.id).single();if(refreshed.data)data=refreshed.data;}
+    const downloadUrl=data.status==="succeeded"?`/api/media?id=${encodeURIComponent(data.id)}`:null;
+    const {storage_path,provider_prediction_id,user_id,attempt_count,updated_at,...safe}=data;
+    res.status(200).json({generation:{...safe,downloadUrl}});
+  }catch(error){sendError(res,error);}
 }

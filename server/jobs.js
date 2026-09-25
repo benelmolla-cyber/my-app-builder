@@ -2,7 +2,7 @@ import {service} from "./supabase.js";
 import {getPrediction,outputUrl} from "./provider.js";
 
 const TERMINAL=new Set(["succeeded","failed","canceled"]);
-export async function finishGeneration(job,{fetcher=fetch}={}){
+export async function finishGeneration(job,{fetcher=fetch,recordFailure=true}={}){
   const db=service();
   try{
     const prediction=await getPrediction(job.provider_prediction_id,{fetcher});
@@ -15,7 +15,7 @@ export async function finishGeneration(job,{fetcher=fetch}={}){
     const {error:uploadError}=await db.storage.from("generated-media").upload(path,body,{contentType,upsert:false}); if(uploadError&&!/already exists/i.test(uploadError.message))throw uploadError;
     const {error:updateError}=await db.from("generations").update({status:"succeeded",storage_path:path,mime_type:contentType,updated_at:new Date().toISOString()}).eq("id",job.id).eq("status","processing"); if(updateError)throw updateError;
     return "succeeded";
-  }catch(error){const attempts=(job.attempt_count||0)+1;if(attempts>=3){await db.rpc("fail_and_refund_generation",{p_generation_id:job.id,p_reason:`Recovery failed after ${attempts} attempts: ${error.message}`});return "failed";}await db.from("generations").update({attempt_count:attempts,error:String(error.message).slice(0,500)}).eq("id",job.id).eq("status","processing");return "retry";}
+  }catch(error){if(!recordFailure)return "retry";const attempts=(job.attempt_count||0)+1;if(attempts>=3){await db.rpc("fail_and_refund_generation",{p_generation_id:job.id,p_reason:`Recovery failed after ${attempts} attempts: ${error.message}`});return "failed";}await db.from("generations").update({attempt_count:attempts,error:String(error.message).slice(0,500)}).eq("id",job.id).eq("status","processing");return "retry";}
 }
 export async function recoverJobs({now=new Date(),fetcher=fetch}={}){
   const db=service(); const staleSubmitting=new Date(now.getTime()-5*60_000).toISOString(); const timedOut=new Date(now.getTime()-30*60_000).toISOString();
