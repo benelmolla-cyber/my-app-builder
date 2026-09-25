@@ -1,128 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BuildPro AI</title>
-  <link rel="stylesheet" href="/styles.css" />
-</head>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#09090b"><title>Sparky AI — Imagine anything</title><meta name="description" content="Create striking images and short videos with AI."><link rel="stylesheet" href="/styles.css"></head>
 <body>
-  <section id="home" class="home">
-    <nav class="nav">
-      <a class="brand" href="#"><span class="logo"></span>BuildPro AI</a>
-      <div class="nav-right">
-        <span class="badge">Real AI Builder</span>
-        <button id="openBuilderTop" class="ghost">Open Builder</button>
+  <header><a class="brand" href="#"><span class="mark">S</span><b>Sparky</b></a><nav><button class="nav-link active" data-view="create">Create</button><button class="nav-link" data-view="library">My library</button></nav><div class="account"><span id="creditPill" class="pill hidden"></span><button id="upgradeButton" class="button primary hidden">Upgrade</button><button id="authButton" class="button secondary">Log in</button></div></header>
+  <main>
+    <section id="createView" class="create-view">
+      <div class="intro"><span class="kicker"><i></i> AI CREATIVE STUDIO</span><h1>Ideas, made <em>visible.</em></h1><p>Turn a few words into remarkable images and cinematic short videos.</p></div>
+      <div class="studio">
+        <div class="mode-row"><button class="mode active" data-type="image"><span>✦</span> Image <small>1 credit</small></button><button class="mode" data-type="video"><span>▶</span> Video <small>10 credits</small></button></div>
+        <label for="prompt">Describe your idea</label><textarea id="prompt" maxlength="1500" placeholder="A glass observatory above lavender clouds, sunrise, cinematic light…"></textarea>
+        <div class="controls"><div><span class="control-label">Aspect ratio</span><div class="ratios"><button class="ratio active" data-ratio="1:1">1:1</button><button class="ratio" data-ratio="16:9">16:9</button><button class="ratio" data-ratio="9:16">9:16</button></div></div><button id="generate" class="button primary"><span>✦</span> Generate image</button></div>
       </div>
-    </nav>
-
-    <main class="hero">
-      <div class="eyebrow">AI SOFTWARE BUILDER</div>
-      <h1>Turn an idea into a<br><span>working web app.</span></h1>
-      <p class="hero-copy">Describe what you want. BuildPro plans it, writes the code, checks it, and renders a live application you can keep editing with AI.</p>
-
-      <form id="homeForm" class="composer hero-composer">
-        <textarea id="homePrompt" rows="4" placeholder="Build a task management SaaS with a dashboard, kanban board, calendar, team page and dark mode..." required></textarea>
-        <div class="composer-bottom">
-          <div class="mode"><span class="pulse"></span> GPT-5.6</div>
-          <button id="homeBuildBtn" class="primary" type="submit">Build app <span>↑</span></button>
-        </div>
-      </form>
-
-      <div class="suggestions">
-        <button data-prompt="Build a modern CRM web app with a dashboard, contacts, deals pipeline, analytics, settings and dark mode. Make all interactions work in the browser.">CRM dashboard</button>
-        <button data-prompt="Build a premium travel booking web app with destination search, hotel cards, favorites, booking modal, trips page and user profile.">Travel app</button>
-        <button data-prompt="Build a project management app with kanban boards, tasks, team members, progress analytics and settings.">Project manager</button>
-        <button data-prompt="Build an ecommerce web app with product browsing, search, category filters, product details, cart and checkout UI.">Online store</button>
-      </div>
-    </main>
-  </section>
-
-  <section id="builder" class="builder hidden">
-    <header class="builder-top">
-      <div class="builder-left">
-        <button id="backHome" class="icon-btn" title="Home">←</button>
-        <div class="brand small"><span class="logo"></span>BuildPro AI</div>
-        <span class="divider"></span>
-        <input id="projectTitle" class="project-title" value="Untitled Project" />
-      </div>
-      <div class="builder-actions">
-        <span id="modelBadge" class="model-badge">GPT-5.6</span>
-        <button id="downloadBtn" class="ghost">Export HTML</button>
-      </div>
-    </header>
-
-    <div class="workspace">
-      <aside class="agent-panel">
-        <div class="panel-head">
-          <div>
-            <strong>Build Agent</strong>
-            <span id="agentStatus">Ready</span>
-          </div>
-          <span id="statusDot" class="status-dot"></span>
-        </div>
-
-        <div id="conversation" class="conversation">
-          <div class="message assistant">
-            <div class="message-label">BUILDPRO</div>
-            <p>Tell me what you want to build. I’ll generate the application and keep the current code in context for follow-up edits.</p>
-          </div>
-        </div>
-
-        <div id="activity" class="activity hidden">
-          <div class="activity-title"><span class="spinner"></span><span id="activityTitle">Building</span></div>
-          <div id="steps" class="steps"></div>
-        </div>
-
-        <form id="builderForm" class="composer builder-composer">
-          <textarea id="builderPrompt" rows="3" placeholder="Ask BuildPro to build or change something..." required></textarea>
-          <div class="composer-bottom">
-            <span class="hint">⌘/Ctrl + Enter</span>
-            <button id="builderSend" class="send" type="submit">↑</button>
-          </div>
-        </form>
-      </aside>
-
-      <main class="preview-panel">
-        <div class="preview-toolbar">
-          <div class="tabs">
-            <button class="tab active" data-view="preview">Preview</button>
-            <button class="tab" data-view="code">Code</button>
-          </div>
-          <div class="viewport-controls">
-            <button id="desktopBtn" class="tool active">Desktop</button>
-            <button id="mobileBtn" class="tool">Mobile</button>
-            <button id="refreshBtn" class="tool">↻</button>
-          </div>
-        </div>
-
-        <div id="previewView" class="preview-stage">
-          <div id="previewShell" class="preview-shell">
-            <div class="browser-bar">
-              <span></span><span></span><span></span>
-              <div class="address">buildpro-preview.local</div>
-            </div>
-            <iframe id="previewFrame" sandbox="allow-scripts allow-forms allow-modals"></iframe>
-          </div>
-          <div id="emptyPreview" class="empty-preview">
-            <div class="empty-icon">◇</div>
-            <h2>Your app will appear here</h2>
-            <p>BuildPro generates real code from your prompt and renders it in this sandbox.</p>
-          </div>
-        </div>
-
-        <div id="codeView" class="code-view hidden">
-          <div class="code-head">
-            <span>index.html</span>
-            <button id="copyCodeBtn" class="ghost">Copy</button>
-          </div>
-          <pre><code id="codeOutput">// Generated code will appear here.</code></pre>
-        </div>
-      </main>
-    </div>
-  </section>
-
+      <div id="result" class="result hidden"></div>
+      <div class="samples"><p>Try an idea</p><div><button data-prompt="An astronaut tending a tiny garden on the moon, soft golden light, editorial photography">Lunar garden</button><button data-prompt="A translucent jellyfish city floating over a midnight ocean, intricate, dreamlike">Ocean city</button><button data-prompt="Minimalist product photo of chrome headphones on red silk, dramatic studio lighting">Studio chrome</button></div></div>
+    </section>
+    <section id="libraryView" class="library-view hidden"><div class="section-title"><div><span class="kicker">YOUR CREATIONS</span><h2>Private library</h2></div><button class="button primary" data-view="create">Create new</button></div><div id="libraryGrid" class="media-grid"></div><div id="libraryEmpty" class="empty hidden"><span>✦</span><h3>Nothing here yet</h3><p>Your finished creations will appear here.</p></div></section>
+  </main>
+  <div id="authModal" class="modal hidden"><div class="dialog"><button class="close" aria-label="Close">×</button><span class="mark large">S</span><h2 id="authTitle">Welcome back</h2><p id="authSub">Sign in to your private creative studio.</p><form id="authForm"><label>Email<input id="email" type="email" autocomplete="email" required placeholder="you@example.com"></label><label>Password<input id="password" type="password" autocomplete="current-password" minlength="8" required placeholder="At least 8 characters"></label><button class="button primary full" type="submit">Continue</button></form><button id="authToggle" class="text-button">New to Sparky? <b>Create an account</b></button><p class="terms">By continuing, you agree to the Terms and Privacy Policy.</p></div></div>
   <div id="toast" class="toast"></div>
-  <script src="/app.js"></script>
-</body>
-</html>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/app.js"></script>
+</body></html>
