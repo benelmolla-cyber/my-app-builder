@@ -6,14 +6,14 @@
   "scripts": {
     "dev": "vercel dev",
     "test": "node --test",
-    "check": "node --check public/app.js && node --check api/generate.js"
+    "check": "for f in public/*.js api/*.js server/*.js test/*.js; do node --check \"$f\" || exit 1; done"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.57.4",
-    "stripe": "^18.5.0"
+    "@supabase/supabase-js": "2.57.4",
+    "stripe": "18.5.0"
   },
   "devDependencies": {
-    "vercel": "^48.1.0"
+    "vercel": "48.1.0"
   },
   "engines": { "node": ">=20" }
 }

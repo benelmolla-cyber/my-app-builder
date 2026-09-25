@@ -1,27 +1,9 @@
-import Stripe from "stripe";
-import { service } from "../server/supabase.js";
-
-export const config = { api: { bodyParser: false } };
-const readBody = req => new Promise((resolve, reject) => { const parts=[]; req.on("data", c=>parts.push(c)); req.on("end",()=>resolve(Buffer.concat(parts))); req.on("error",reject); });
-
-export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).end();
-  try {
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-    const event = stripe.webhooks.constructEvent(await readBody(req), req.headers["stripe-signature"], process.env.STRIPE_WEBHOOK_SECRET);
-    const db = service();
-    if (event.type === "invoice.paid") {
-      const invoice = event.data.object;
-      const subscription = await stripe.subscriptions.retrieve(invoice.subscription);
-      const userId = subscription.metadata.user_id;
-      if (!userId) throw new Error("Subscription is missing user_id metadata.");
-      const { error } = await db.rpc("apply_subscription_payment", { p_user_id: userId, p_event_id: event.id, p_customer_id: String(invoice.customer), p_subscription_id: String(invoice.subscription) });
-      if (error) throw error;
-    }
-    if (["customer.subscription.deleted", "customer.subscription.updated"].includes(event.type)) {
-      const sub = event.data.object;
-      if (sub.metadata.user_id) await db.from("profiles").update({ stripe_subscription_status: sub.status }).eq("id", sub.metadata.user_id);
-    }
-    res.status(200).json({ received: true });
-  } catch (error) { console.error("Stripe webhook error", error); res.status(400).json({ error: "Invalid webhook." }); }
-}
+import {service} from "../server/supabase.js";
+import {stripeClient} from "../server/stripe.js";
+import {invoiceSubscriptionId} from "../server/stripe-shapes.js";
+export const config={api:{bodyParser:false}};
+const readBody=req=>new Promise((resolve,reject)=>{const chunks=[];req.on("data",c=>chunks.push(c));req.on("end",()=>resolve(Buffer.concat(chunks)));req.on("error",reject);});
+export default async function handler(req,res){if(req.method!=="POST")return res.status(405).end();try{const stripe=stripeClient();const event=stripe.webhooks.constructEvent(await readBody(req),req.headers["stripe-signature"],process.env.STRIPE_WEBHOOK_SECRET);const db=service();
+  if(event.type==="invoice.paid"){const invoice=event.data.object;const subscriptionId=invoiceSubscriptionId(invoice);if(subscriptionId){const subscription=await stripe.subscriptions.retrieve(subscriptionId);const userId=subscription.metadata.user_id;if(!userId)throw new Error("Subscription is missing user_id metadata.");const {error}=await db.rpc("apply_subscription_payment",{p_user_id:userId,p_invoice_id:invoice.id,p_customer_id:typeof invoice.customer==="string"?invoice.customer:invoice.customer.id,p_subscription_id:subscriptionId});if(error)throw error;}}
+  if(["customer.subscription.created","customer.subscription.updated","customer.subscription.deleted"].includes(event.type)){const sub=event.data.object;if(sub.metadata.user_id){const {error}=await db.from("profiles").update({stripe_customer_id:typeof sub.customer==="string"?sub.customer:sub.customer.id,stripe_subscription_id:sub.id,stripe_subscription_status:sub.status}).eq("id",sub.metadata.user_id);if(error)throw error;}}
+  res.status(200).json({received:true});}catch(error){console.error("Stripe webhook error",error);res.status(400).json({error:"Invalid webhook."});}}

@@ -1,14 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { runGeneration } from "../server/provider.js";
-
-test("image generation sends the real provider request and returns its URL", async () => {
-  process.env.REPLICATE_API_TOKEN="test-token"; let request;
-  const url=await runGeneration({type:"image",prompt:"a comet",aspectRatio:"1:1"},{fetcher:async (...args)=>{request=args;return {ok:true,json:async()=>({status:"succeeded",output:["https://cdn.example/image.webp"]})};}});
-  assert.equal(url,"https://cdn.example/image.webp"); assert.match(request[0],/flux-schnell/); assert.equal(JSON.parse(request[1].body).input.prompt,"a comet");
-});
-
-test("provider failures remain failures", async () => {
-  process.env.REPLICATE_API_TOKEN="test-token";
-  await assert.rejects(()=>runGeneration({type:"video",prompt:"storm",aspectRatio:"16:9"},{fetcher:async()=>({ok:false,json:async()=>({detail:"quota exceeded"})})}),/quota exceeded/);
-});
+import {createPrediction,getPrediction,outputUrl} from "../server/provider.js";
+test("creates one asynchronous prediction with an idempotency key",async()=>{process.env.REPLICATE_API_TOKEN="test";let request;const result=await createPrediction({type:"image",prompt:"comet",aspectRatio:"1:1",idempotencyKey:"key"},{fetcher:async(...args)=>(request=args,{ok:true,json:async()=>({id:"pred_1",status:"starting"})})});assert.equal(result.id,"pred_1");assert.equal(request[1].headers["Idempotency-Key"],"key");assert.match(request[0],/flux-schnell/);});
+test("reads prediction state without starting another job",async()=>{process.env.REPLICATE_API_TOKEN="test";let calls=0;const result=await getPrediction("pred_1",{fetcher:async url=>(calls++,assert.match(url,/predictions\/pred_1/),{ok:true,json:async()=>({id:"pred_1",status:"succeeded",output:"https://cdn.example/a.webp"})})});assert.equal(calls,1);assert.equal(outputUrl(result),"https://cdn.example/a.webp");});
+test("provider failures remain failures",async()=>{process.env.REPLICATE_API_TOKEN="test";await assert.rejects(()=>createPrediction({type:"video",prompt:"storm",aspectRatio:"16:9",idempotencyKey:"key"},{fetcher:async()=>({ok:false,json:async()=>({detail:"quota exceeded"})})}),/quota exceeded/);});

@@ -8,6 +8,6 @@ export default async function handler(req, res) {
     const { data: profile, error } = await service().from("profiles").select("credits,trial_ends_at,stripe_subscription_status").eq("id", user.id).single();
     if (error) throw error;
     const owner = process.env.OWNER_EMAIL?.toLowerCase() === user.email?.toLowerCase();
-    res.status(200).json({ user: { id: user.id, email: user.email }, profile, owner, credits: owner ? null : profile.credits });
+    res.status(200).json({ user: { id: user.id, email: user.email }, profile, owner, credits: owner ? null : profile.credits, hasSubscription: Boolean(profile.stripe_subscription_status) });
   } catch (error) { sendError(res, error); }
 }
