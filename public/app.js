@@ -14,7 +14,8 @@ function setSignup(value){ state.signup=value; $("#authTitle").textContent=value
 async function refreshAccount(){
   if (!state.session){ $("#creditPill").classList.add("hidden"); $("#upgradeButton").classList.add("hidden"); $("#authButton").textContent="Log in"; return; }
   try { const data=await api("me"); $("#creditPill").classList.remove("hidden"); $("#upgradeButton").classList.toggle("hidden",data.owner); $("#upgradeButton").textContent=data.hasSubscription?"Manage plan":"Upgrade"; $("#upgradeButton").dataset.action=data.hasSubscription?"portal":"checkout"; $("#creditPill").textContent=data.owner?"∞ Owner":`${data.credits} credits`; $("#authButton").textContent="Log out"; }
-  catch(error){ toast(error.message,true); }
+  catch(error){ toast(error.message,true); return false; }
+  return true;
 }
 async function showView(name){
   $("#createView").classList.toggle("hidden",name!=="create"); $("#libraryView").classList.toggle("hidden",name!=="library");
@@ -46,5 +47,5 @@ $$('[data-prompt]').forEach(b=>b.addEventListener('click',()=>{$("#prompt").valu
 $("#generate").addEventListener("click",generate); $(".close").addEventListener("click",closeAuth); $("#authModal").addEventListener("click",e=>{if(e.target.id==="authModal")closeAuth();}); $("#authToggle").addEventListener("click",()=>setSignup(!state.signup));
 $("#upgradeButton").addEventListener("click",async e=>{ try { const endpoint=e.currentTarget.dataset.action==="portal"?"create-portal":"create-checkout"; const {url}=await api(endpoint,{method:"POST",body:"{}"}); location.href=url; } catch(error){ toast(error.message,true); } });
 $("#authButton").addEventListener("click",async()=>{if(!state.session)return openAuth();await state.client.auth.signOut();toast("Signed out.");});
-$("#authForm").addEventListener("submit",async e=>{e.preventDefault(); if(!state.client)return toast("Authentication is not configured.",true); const credentials={email:$("#email").value,password:$("#password").value}; const {data,error}=state.signup?await state.client.auth.signUp(credentials):await state.client.auth.signInWithPassword(credentials); if(error)return toast(error.message,true); closeAuth(); if(state.signup&&!data.session)toast("Check your email to confirm your account."); else toast("Welcome to Sparky.");});
+$("#authForm").addEventListener("submit",async e=>{e.preventDefault(); if(!state.client)return toast("Authentication is not configured.",true); const credentials={email:$("#email").value,password:$("#password").value}; const {data,error}=state.signup?await state.client.auth.signUp(credentials):await state.client.auth.signInWithPassword(credentials); if(error)return toast(error.message,true); closeAuth(); if(state.signup&&!data.session){ toast("Check your email to confirm your account."); return; } state.session=data.session; if(await refreshAccount())toast("Welcome to Sparky.");});
 init();
