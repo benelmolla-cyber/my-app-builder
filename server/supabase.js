@@ -8,6 +8,7 @@ export async function requireUser(req) {
   const token = req.headers.authorization?.match(/^Bearer (.+)$/)?.[1];
   if (!token) throw Object.assign(new Error("Sign in required."), { status: 401 });
   const { data, error } = await service().auth.getUser(token);
+  if (error) console.error("Supabase token validation failed:", { message: error.message, code: error.code, status: error.status });
   if (error || !data.user) throw Object.assign(new Error("Your session is invalid or expired."), { status: 401 });
   return data.user;
 }
