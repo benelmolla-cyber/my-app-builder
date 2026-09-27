@@ -85,7 +85,8 @@ begin
   select cost,user_id into v_cost,v_user from generations where id=p_generation_id and status in ('submitting','processing') for update;
   if not found then return false; end if;
   update generations set status='failed',error=left(p_reason,500),refunded_at=now(),updated_at=now() where id=p_generation_id;
-  if v_cost>0 then update profiles set credits=credits+v_cost where id=v_user; end if;
+  -- A late refund must not push a paid account above its monthly allowance.
+  if v_cost>0 then update profiles set credits=least(100,credits+v_cost) where id=v_user; end if;
   return true;
 end $$;
 
@@ -95,7 +96,8 @@ begin
   if auth.role() <> 'service_role' then raise exception 'service role required'; end if;
   insert into credit_events(id,user_id,amount,reason) values('invoice:'||p_invoice_id,p_user_id,100,'stripe_invoice_paid') on conflict do nothing;
   if not found then return false; end if;
-  update profiles set credits=credits+100,stripe_customer_id=p_customer_id,stripe_subscription_id=p_subscription_id,stripe_subscription_status='active' where id=p_user_id;
+  -- A paid invoice starts a fresh allowance. Unused credits never roll over.
+  update profiles set credits=100,stripe_customer_id=p_customer_id,stripe_subscription_id=p_subscription_id,stripe_subscription_status='active' where id=p_user_id;
   return true;
 end $$;
 
