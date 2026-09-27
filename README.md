@@ -16,6 +16,7 @@ Sparky is a mobile-first, dark creative studio for real AI image and short-video
 - Consider **$14.99 USD/month** as an initial Studio price for 100 credits, after verifying your payment processor's country/currency support. This is a suggested price, not a Stripe price automatically created by the code. Price changes to an existing Stripe price do not retroactively change subscriber billing: create a new recurring price and update `STRIPE_PRICE_ID`.
 - At $14.99/month and a $5 maximum modeled video usage, **$9.99 remains before payment processing, storage, hosting, free trials, failed attempts, taxes, support, and owner usage**. Actual profit depends on total customers and total expenses. Owner access bypasses app credits but still costs provider money.
 - Limit fraudulent trial signups with Supabase email confirmation and CAPTCHA/rate limits. Do not advertise subscriptions until Stripe checkout and the signed `invoice.paid` webhook have been tested with a real test-mode payment.
+- Checkout is disabled until `STRIPE_SECRET_KEY`, `STRIPE_PRICE_ID`, `STRIPE_WEBHOOK_SECRET`, and `APP_URL` are set. The Upgrade control shows **Subscriptions soon** while this setup is incomplete.
 - For an existing Supabase project that has already run `schema.sql`, execute [`supabase/migrations/20260927_monthly_credit_cap.sql`](supabase/migrations/20260927_monthly_credit_cap.sql) in the SQL Editor. This caps any existing balances above 100. New projects should run the updated `schema.sql` only.
 
 ## Accounts and settings required before launch
