@@ -68,6 +68,10 @@ begin
   select id,status into v_id,generation_status from generations where user_id=p_user_id and idempotency_key=p_idempotency_key;
   if found then return query select v_id,false,generation_status; return; end if;
   if not p_is_owner then
+    -- Free trials cover images; videos require a currently paid invoice.
+    if p_kind='video' and (coalesce(v_sub,'') not in ('active','trialing') or
+      not exists (select 1 from credit_events where user_id=p_user_id and reason='stripe_invoice_paid'))
+      then raise exception 'subscription required for video'; end if;
     if v_trial < now() and coalesce(v_sub,'') not in ('active','trialing') then raise exception 'subscription required'; end if;
     if v_credits < p_cost then raise exception 'insufficient credits'; end if;
     update profiles set credits=credits-p_cost where id=p_user_id;
