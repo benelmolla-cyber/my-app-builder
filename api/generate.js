@@ -6,6 +6,7 @@ import {allowMethod,sendError} from "../server/http.js";
 export const config={maxDuration:30};
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 export default async function handler(req,res){
+  res.setHeader("Cache-Control","private, no-store");
   if(req.method==="GET")return getStatus(req,res);
   if(!allowMethod(req,res,"POST"))return;
   let generationId,created=false;
@@ -15,6 +16,7 @@ export default async function handler(req,res){
     if(typeof key!=="string"||!UUID.test(key))throw Object.assign(new Error("A UUID Idempotency-Key header is required."),{status:400});
     if(!["image","video"].includes(type)||!["1:1","16:9","9:16"].includes(aspectRatio))throw Object.assign(new Error("Invalid generation options."),{status:400});
     if(typeof prompt!=="string"||!prompt.trim()||prompt.length>1500)throw Object.assign(new Error("Prompt must be between 1 and 1,500 characters."),{status:400});
+    if(!process.env.REPLICATE_API_TOKEN)throw Object.assign(new Error("Replicate API token is missing."),{status:503});
     const owner=process.env.OWNER_EMAIL?.toLowerCase()===user.email?.toLowerCase(); const db=service();
     const {data,error}=await db.rpc("reserve_generation",{p_user_id:user.id,p_idempotency_key:key,p_kind:type,p_prompt:prompt.trim(),p_aspect_ratio:aspectRatio,p_cost:type==="video"?10:1,p_is_owner:owner});
     if(error)throw Object.assign(new Error(error.message),{status:/(credits|subscription required)/i.test(error.message)?402:500});
@@ -25,8 +27,13 @@ export default async function handler(req,res){
     if(saveError)throw saveError;
     res.status(202).json({generation:{id:generationId,status:"processing"},replayed:false});
   }catch(error){
-    if(generationId&&created)await service().rpc("fail_and_refund_generation",{p_generation_id:generationId,p_reason:String(error.message)}).catch(refund=>console.error("Refund failed",refund));
-    sendError(res,error,"Generation could not be started. Reserved credits were refunded.");
+    if(generationId&&created){
+      try{
+        const {error:refundError}=await service().rpc("fail_and_refund_generation",{p_generation_id:generationId,p_reason:String(error.message)});
+        if(refundError)console.error("Refund failed",refundError);
+      }catch(refundError){console.error("Refund failed",refundError);}
+    }
+    sendError(res,error,error.status===503?"Generation is not configured. Add REPLICATE_API_TOKEN in Vercel and redeploy.":"Generation could not be started. Please try again.");
   }
 }
 async function getStatus(req,res){
@@ -38,7 +45,7 @@ async function getStatus(req,res){
     // Polling clients finish their own provider job immediately. The daily cron remains
     // a no-cost-plan safety net for jobs whose browser was closed.
     if(data.status==="processing"&&Date.now()-new Date(data.updated_at).getTime()>30*60_000)await db.rpc("fail_and_refund_generation",{p_generation_id:data.id,p_reason:"Generation exceeded the 30 minute processing limit."});
-    else if(data.status==="processing")await finishGeneration(data,{recordFailure:false});
+    else if(data.status==="processing")await finishGeneration(data);
     if(data.status==="submitting"&&Date.now()-new Date(data.updated_at).getTime()>5*60_000)await db.rpc("fail_and_refund_generation",{p_generation_id:data.id,p_reason:"Submission recovery timeout; no provider job was recorded."});
     if(["processing","submitting"].includes(data.status)){const refreshed=await db.from("generations").select(fields).eq("id",id).eq("user_id",user.id).single();if(refreshed.data)data=refreshed.data;}
     const downloadUrl=data.status==="succeeded"?`/api/media?id=${encodeURIComponent(data.id)}`:null;
