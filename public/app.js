@@ -5,7 +5,7 @@ const toast = (message, bad=false) => { const el=$("#toast"); el.textContent=mes
 async function api(path, options={}) {
   const headers = { ...(options.body ? {"Content-Type":"application/json"} : {}), ...(options.headers||{}) };
   if (state.session) headers.Authorization=`Bearer ${state.session.access_token}`;
-  const response=await fetch(`/api/${path}`,{...options,headers}); const data=await response.json().catch(()=>({}));
+  const response=await fetch(`/api/${path}`,{cache:"no-store",...options,headers}); const data=await response.json().catch(()=>({}));
   if (!response.ok) throw new Error(data.error||"Request failed."); return data;
 }
 function openAuth(){ $("#authModal").classList.remove("hidden"); $("#email").focus(); }
@@ -30,8 +30,9 @@ async function loadLibrary(){
 async function generate(){
   if(!state.session) return openAuth(); const prompt=$("#prompt").value.trim(); if(!prompt)return toast("Describe what you want to create.",true);
   const btn=$("#generate"); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Creating…'; const box=$("#result"); box.className="result working"; box.innerHTML=`<div class="result-status"><span class="orb">✦</span><h3>Bringing your idea to life</h3><p>${state.type==='video'?'Videos can take several minutes. Keep this tab open.':'This usually takes less than a minute.'}</p></div>`;
-  try { state.requestKey=state.requestKey||crypto.randomUUID(); const {generation}=await api("generate",{method:"POST",headers:{"Idempotency-Key":state.requestKey},body:JSON.stringify({type:state.type,prompt,aspectRatio:state.ratio})}); const finished=await waitForGeneration(generation.id); if(finished.status!=="succeeded"){state.requestKey=null;throw new Error(finished.error||"Generation failed. Your credits were refunded.");} const source=await authenticatedMedia(finished.downloadUrl); const media=state.type==="video"?`<video src="${source}" controls autoplay muted playsinline></video>`:`<img src="${source}" alt="Generated artwork">`; box.className="result"; box.innerHTML=`${media}<div class="result-meta"><div><span>JUST CREATED</span><p></p></div><a class="button secondary" href="${source}" download>Download</a></div>`; box.querySelector(".result-meta p").textContent=prompt; state.requestKey=null; await refreshAccount(); }
-  catch(error){ box.className="result hidden"; toast(error.message,true); await refreshAccount(); }
+  let generationId=null;
+  try { state.requestKey=state.requestKey||crypto.randomUUID(); const {generation}=await api("generate",{method:"POST",headers:{"Idempotency-Key":state.requestKey},body:JSON.stringify({type:state.type,prompt,aspectRatio:state.ratio})}); generationId=generation.id; const finished=await waitForGeneration(generation.id); if(finished.status!=="succeeded"){state.requestKey=null;throw new Error(finished.error||"Generation failed. Your credits were refunded.");} const source=await authenticatedMedia(finished.downloadUrl); const media=state.type==="video"?`<video src="${source}" controls autoplay muted playsinline></video>`:`<img src="${source}" alt="Generated artwork">`; box.className="result"; box.innerHTML=`${media}<div class="result-meta"><div><span>JUST CREATED</span><p></p></div><a class="button secondary" href="${source}" download>Download</a></div>`; box.querySelector(".result-meta p").textContent=prompt; state.requestKey=null; await refreshAccount(); }
+  catch(error){ if(!generationId)state.requestKey=null; box.className="result hidden"; toast(error.message,true); await refreshAccount(); }
   finally { btn.disabled=false; btn.innerHTML=`<span>${state.type==='video'?'▶':'✦'}</span> Generate ${state.type}`; }
 }
 async function waitForGeneration(id){ for(let i=0;i<180;i++){const {generation}=await api(`generate?id=${encodeURIComponent(id)}`);if(["succeeded","failed"].includes(generation.status))return generation;await new Promise(resolve=>setTimeout(resolve,2000));}throw new Error("Generation is still processing. It will remain in your library when complete."); }
