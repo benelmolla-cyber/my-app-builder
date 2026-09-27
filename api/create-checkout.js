@@ -15,6 +15,15 @@ export default async function handler(req,res){
       if(error)throw error;
       if(profile.paypal_subscription_id&&["ACTIVE","SUSPENDED"].includes(profile.paypal_subscription_status))
         throw Object.assign(new Error("You already have a subscription. Use Manage plan instead."),{status:409});
+      if(profile.paypal_subscription_id&&profile.paypal_subscription_status==="APPROVAL_PENDING"){
+        const pending=await paypalRequest(`/v1/billing/subscriptions/${encodeURIComponent(profile.paypal_subscription_id)}`);
+        if(pending.status==="APPROVAL_PENDING"){
+          const url=pending.links?.find(link=>link.rel==="approve")?.href;
+          if(url?.startsWith("https://"))return res.status(200).json({url});
+          throw Object.assign(new Error("Your PayPal approval is still pending. Manage it in PayPal before retrying."),{status:409});
+        }
+        if(pending.status==="ACTIVE")throw Object.assign(new Error("Your PayPal subscription is active. Wait for payment confirmation."),{status:409});
+      }
       const origin=process.env.APP_URL.replace(/\/$/,"");
       const subscription=await paypalRequest("/v1/billing/subscriptions",{method:"POST",
         requestId:`sparky-${user.id}-${Math.floor(Date.now()/600000)}`,
