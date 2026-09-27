@@ -1,8 +1,19 @@
 {
-  "name": "buildpro-ai",
+  "name": "sparky-ai",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "test": "node --test",
+    "check": "for f in public/*.js api/*.js server/*.js test/*.js; do node --check \"$f\" || exit 1; done"
+  },
   "dependencies": {
-    "openai": "^6.0.0"
-  }
+    "@supabase/supabase-js": "2.57.4",
+    "stripe": "18.5.0"
+  },
+  "devDependencies": {
+    "vercel": "48.1.0"
+  },
+  "engines": { "node": ">=20" }
 }

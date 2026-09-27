@@ -1,0 +1,61 @@
+# Sparky AI
+
+Sparky is a mobile-first, dark creative studio for real AI image and short-video generation. Authentication and private media storage are backed by Supabase, asynchronous generation runs through Replicate, and recurring billing supports PayPal subscriptions or Stripe Checkout with verified webhooks.
+
+## Product rules
+
+- New accounts receive **12 image-only trial credits** and a trial end date seven days after signup. Videos require an active subscription with a paid invoice.
+- Images cost **1 credit** and videos cost **10 credits**. UUID request keys and locked database transactions make retries idempotent. A scheduled recovery worker completes provider jobs and refunds failed, orphaned, or timed-out jobs exactly once.
+- Every successfully paid subscription invoice resets the account to **100 credits**, capped at 100. Unused credits do not roll over. Stripe invoice IDs make resets idempotent, and existing subscribers are sent to Stripe's management portal instead of another Checkout.
+- The email in `OWNER_EMAIL` has unlimited **app credits**. This is checked only by the server and does **not** make Replicate usage free—the owner still incurs provider charges for every generation.
+- Sparky never fakes a completed generation or payment. Provider and billing errors are shown as errors.
+
+## Keeping generation costs below plan revenue
+
+- The configured Replicate models cost approximately **$0.003 per image** and **$0.50 per short video** at the time of writing. At 1 credit per image and 10 per video, spending 100 monthly credits entirely on video can cost **$5 in provider charges**. A 12-image free trial costs about **$0.036** in provider charges if every image succeeds. Failed provider jobs may still incur a charge; monitor actual Replicate invoices.
+- Consider **$14.99 USD/month** as an initial Studio price for 100 credits, after verifying your payment processor's country/currency support. This is a suggested price, not a Stripe price automatically created by the code. Price changes to an existing Stripe price do not retroactively change subscriber billing: create a new recurring price and update `STRIPE_PRICE_ID`.
+- At $14.99/month and a $5 maximum modeled video usage, **$9.99 remains before payment processing, storage, hosting, free trials, failed attempts, taxes, support, and owner usage**. Actual profit depends on total customers and total expenses. Owner access bypasses app credits but still costs provider money.
+- Limit fraudulent trial signups with Supabase email confirmation and CAPTCHA/rate limits. Do not advertise subscriptions until Stripe checkout and the signed `invoice.paid` webhook have been tested with a real test-mode payment.
+- Checkout is disabled until `STRIPE_SECRET_KEY`, `STRIPE_PRICE_ID`, `STRIPE_WEBHOOK_SECRET`, and `APP_URL` are set. The Upgrade control shows **Subscriptions soon** while this setup is incomplete.
+- Set `BILLING_PROVIDER=paypal` to select PayPal instead. It requires `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_PLAN_ID`, `PAYPAL_WEBHOOK_ID`, `PAYPAL_MONTHLY_PRICE`, and `APP_URL`. It is disabled until all are present.
+- Existing Supabase projects also need [`supabase/migrations/20260927_paypal_billing.sql`](supabase/migrations/20260927_paypal_billing.sql) before enabling PayPal. PayPal credits are issued only on signed `PAYMENT.SALE.COMPLETED` events matched against the linked subscription, expected plan, exact monthly USD amount and active status. Duplicate sales cannot grant credits twice. Refund/reversal events suspend access and clear remaining credits. Customers manage or cancel through PayPal's automatic payments page.
+- For an existing Supabase project that has already run `schema.sql`, execute [`supabase/migrations/20260927_monthly_credit_cap.sql`](supabase/migrations/20260927_monthly_credit_cap.sql) in the SQL Editor. This caps any existing balances above 100. New projects should run the updated `schema.sql` only.
+
+## Accounts and settings required before launch
+
+1. **Supabase:** create a project, run [`supabase/schema.sql`](supabase/schema.sql) in its SQL editor, enable Email auth, choose whether email confirmation is required, and set the Site URL plus redirect URLs to the production domain. The schema creates a private `generated-media` bucket. Copy the URL, anon key, and service-role key.
+2. **Replicate:** create an account with billing enabled and an API token. Generate a long random `REPLICATE_WEBHOOK_SECRET`; Sparky registers the resulting authenticated completion URL on each prediction. Confirm the configured image and video models are available in your region/account and review their current pricing and safety policies.
+3. **Stripe:** create a recurring product/price (the interval is your choice), enable the Customer Portal (including cancellation), copy its price ID, and add a webhook endpoint at `https://YOUR_DOMAIN/api/stripe-webhook`. Pin the endpoint to API version `2025-06-30.basil`; subscribe it to `invoice.paid`, `customer.subscription.created`, `customer.subscription.updated`, and `customer.subscription.deleted`; copy the signing secret. The installed Stripe SDK is pinned to `18.5.0` and tests cover both Basil and legacy invoice subscription shapes.
+   **PayPal alternative:** use a PayPal Business account enabled for REST subscriptions in your country. Create a REST application and an active USD monthly plan priced at the value in `PAYPAL_MONTHLY_PRICE` (for example, 14.99; infinite monthly cycles). Add its webhook endpoint `https://YOUR_DOMAIN/api/paypal-webhook` and subscribe to `PAYMENT.SALE.COMPLETED`, `PAYMENT.SALE.REFUNDED`, `PAYMENT.SALE.REVERSED`, `BILLING.SUBSCRIPTION.ACTIVATED`, `BILLING.SUBSCRIPTION.CANCELLED`, `BILLING.SUBSCRIPTION.EXPIRED`, and `BILLING.SUBSCRIPTION.SUSPENDED`. Copy its webhook ID, client ID, and client secret to Vercel server-side environment variables. Set `BILLING_PROVIDER=paypal` and `PAYPAL_MODE=live` only with live credentials; sandbox for tests. Never send the client secret in a chat or commit it to Git.
+4. **Owner:** set `OWNER_EMAIL` to the exact, confirmed Supabase login email. Owner access only bypasses Sparky credit deductions; it does not remove Replicate costs.
+5. **Vercel:** import this repository, keep the root directory as-is, add common variables and the variables for your selected payment provider for Production, and set `APP_URL` to the canonical HTTPS URL. Preview must use the matching provider's sandbox/test credentials and its own webhook ID. Redeploy after changes.
+6. Add production legal pages, moderation/acceptable-use rules, support contact, custom domain, transactional email/SMTP, monitoring, rate limiting/WAF, and a retention/deletion policy before accepting public traffic.
+
+## Local setup
+
+```bash
+npm install
+cp .env.example .env.local
+# Fill in test/sandbox credentials only
+npm run dev
+```
+
+Forward Stripe test events while developing:
+
+```bash
+stripe listen --forward-to localhost:3000/api/stripe-webhook
+```
+
+Use Stripe test mode and a non-production Replicate account. Automated provider tests use mocks and do not make paid API calls. To execute the database integration suite, create a disposable Supabase project with this schema and set `SUPABASE_TEST_URL`, `SUPABASE_TEST_ANON_KEY`, and `SUPABASE_TEST_SERVICE_ROLE_KEY`; the test creates and removes its own user.
+
+## Security notes
+
+The browser receives only the Supabase anon key. Service-role, Replicate, Stripe, and cron secrets remain in serverless functions. API requests validate the Supabase access token server-side. Row Level Security prevents users from reading another user's profile or generations, while all balance mutations require the service role and execute as locked database transactions.
+
+The recovery worker copies provider output into the private Supabase Storage bucket. Authenticated media endpoints verify ownership and issue a 60-second signed download URL; provider URLs are never persisted. Configure Replicate's output retention to the shortest practical duration as an additional privacy measure.
+
+## Background processing on Vercel Hobby
+
+Vercel Hobby cron jobs cannot run every minute. Normal background completion instead uses Replicate's `completed` webhook, authenticated with `REPLICATE_WEBHOOK_SECRET`; active browsers also finalize work while polling. The configured `17 3 * * *` schedule runs the protected recovery worker once per day, within the Hobby allowance, as a final safety net for missing webhooks and abandoned tabs. It atomically refunds orphaned, failed, or timed-out work. Cron timing is not guaranteed to the minute on Hobby, so recovery after both a missed webhook and a closed browser may be delayed until the daily execution. No paid Vercel upgrade is required.
+
+The three exact rewrites expose `/`, `/app.js`, and `/styles.css` from the repository's `public` directory without using the unsupported top-level `public` configuration property. API paths are not rewritten and continue to resolve as Vercel Functions.
