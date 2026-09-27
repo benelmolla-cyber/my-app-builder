@@ -8,6 +8,7 @@ export async function createPrediction({type,prompt,aspectRatio,idempotencyKey},
   const webhook=process.env.APP_URL&&process.env.REPLICATE_WEBHOOK_SECRET?`${process.env.APP_URL.replace(/\/$/,"")}/api/replicate-webhook?secret=${encodeURIComponent(process.env.REPLICATE_WEBHOOK_SECRET)}`:undefined;
   const response=await fetcher(`https://api.replicate.com/v1/models/${MODELS[type]}/predictions`,{method:"POST",headers:{...headers(),"Idempotency-Key":idempotencyKey},body:JSON.stringify({input,...(webhook?{webhook,webhook_events_filter:["completed"]}:{})})});
   const result=await response.json();
+  if(!response.ok&&(response.status===402||/requires credit to run predictions/i.test(String(result.detail||result.error||""))))throw Object.assign(new Error("Replicate requires paid account credit to create images and videos. Add credit in Replicate Billing before trying again."),{status:402});
   if(!response.ok||!result.id)throw new Error(result.detail||result.error||"Provider rejected the request.");
   return {id:result.id,status:result.status};
 }
