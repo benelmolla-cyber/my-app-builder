@@ -10,7 +10,7 @@ async function api(path, options={}) {
 }
 function openAuth(){ $("#authModal").classList.remove("hidden"); $("#email").focus(); }
 function closeAuth(){ $("#authModal").classList.add("hidden"); }
-function setSignup(value){ state.signup=value; $("#authTitle").textContent=value?"Start creating":"Welcome back"; $("#authSub").textContent=value?"Your 7-day trial includes 12 credits.":"Sign in to your private creative studio."; $("#authToggle").innerHTML=value?'Already have an account? <b>Log in</b>':'New to Sparky? <b>Create an account</b>'; }
+function setSignup(value){ state.signup=value; $("#authTitle").textContent=value?"Start creating":"Welcome back"; $("#authSub").textContent=value?"Your 7-day trial includes 12 image credits.":"Sign in to your private creative studio."; $("#authToggle").innerHTML=value?'Already have an account? <b>Log in</b>':'New to Sparky? <b>Create an account</b>'; }
 async function refreshAccount(){
   if (!state.session){ $("#creditPill").classList.add("hidden"); $("#upgradeButton").classList.add("hidden"); $("#authButton").textContent="Log in"; return; }
   try { const data=await api("me"); $("#creditPill").classList.remove("hidden"); $("#upgradeButton").classList.toggle("hidden",data.owner); $("#upgradeButton").disabled=!data.billingReady&&!data.hasSubscription; $("#upgradeButton").textContent=data.hasSubscription?"Manage plan":data.billingReady?"Upgrade":"Subscriptions soon"; $("#upgradeButton").dataset.action=data.hasSubscription?"portal":"checkout"; $("#creditPill").textContent=data.owner?"∞ Owner":`${data.credits} credits`; $("#authButton").textContent="Log out"; }
