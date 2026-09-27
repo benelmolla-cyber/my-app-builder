@@ -4,7 +4,7 @@ Sparky is a mobile-first, dark creative studio for real AI image and short-video
 
 ## Product rules
 
-- New accounts receive **12 trial credits** and a trial end date seven days after signup.
+- New accounts receive **12 image-only trial credits** and a trial end date seven days after signup. Videos require an active subscription with a paid invoice.
 - Images cost **1 credit** and videos cost **10 credits**. UUID request keys and locked database transactions make retries idempotent. A scheduled recovery worker completes provider jobs and refunds failed, orphaned, or timed-out jobs exactly once.
 - Every successfully paid subscription invoice resets the account to **100 credits**, capped at 100. Unused credits do not roll over. Stripe invoice IDs make resets idempotent, and existing subscribers are sent to Stripe's management portal instead of another Checkout.
 - The email in `OWNER_EMAIL` has unlimited **app credits**. This is checked only by the server and does **not** make Replicate usage free—the owner still incurs provider charges for every generation.
@@ -12,7 +12,7 @@ Sparky is a mobile-first, dark creative studio for real AI image and short-video
 
 ## Keeping generation costs below plan revenue
 
-- The configured Replicate models cost approximately **$0.003 per image** and **$0.50 per short video** at the time of writing. At 1 credit per image and 10 per video, spending 100 monthly credits entirely on video can cost **$5 in provider charges**. A 12-credit free trial can cost about **$0.51** if spent on a video and two images. Failed provider jobs may still incur a charge; monitor actual Replicate invoices.
+- The configured Replicate models cost approximately **$0.003 per image** and **$0.50 per short video** at the time of writing. At 1 credit per image and 10 per video, spending 100 monthly credits entirely on video can cost **$5 in provider charges**. A 12-image free trial costs about **$0.036** in provider charges if every image succeeds. Failed provider jobs may still incur a charge; monitor actual Replicate invoices.
 - Consider **$14.99 USD/month** as an initial Studio price for 100 credits, after verifying your payment processor's country/currency support. This is a suggested price, not a Stripe price automatically created by the code. Price changes to an existing Stripe price do not retroactively change subscriber billing: create a new recurring price and update `STRIPE_PRICE_ID`.
 - At $14.99/month and a $5 maximum modeled video usage, **$9.99 remains before payment processing, storage, hosting, free trials, failed attempts, taxes, support, and owner usage**. Actual profit depends on total customers and total expenses. Owner access bypasses app credits but still costs provider money.
 - Limit fraudulent trial signups with Supabase email confirmation and CAPTCHA/rate limits. Do not advertise subscriptions until Stripe checkout and the signed `invoice.paid` webhook have been tested with a real test-mode payment.
