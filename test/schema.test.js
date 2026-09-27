@@ -4,5 +4,6 @@ import {readFile} from "node:fs/promises";
 const sql=await readFile(new URL("../supabase/schema.sql",import.meta.url),"utf8");
 test("private storage has no client object policy",()=>{assert.match(sql,/values\('generated-media','generated-media',false/);assert.doesNotMatch(sql,/policy .*storage\.objects/i);});
 test("reservation serializes balances and deduplicates requests",()=>{assert.match(sql,/unique\(user_id,idempotency_key\)/);assert.match(sql,/for update/);assert.match(sql,/p_kind='image' and p_cost<>1/);assert.match(sql,/p_kind='video' and p_cost<>10/);});
+test("trial videos require a paid invoice",()=>{assert.match(sql,/p_kind='video' and \(coalesce\(v_sub,'\'\) not in/);assert.match(sql,/reason='stripe_invoice_paid'/);});
 test("refunds are locked and bounded by the monthly allowance",()=>{assert.match(sql,/status in \('submitting','processing'\) for update/);assert.match(sql,/credits=least\(100,credits\+v_cost\)/);assert.match(sql,/refunded_at=now\(\)/);});
 test("paid invoices reset rather than accumulate credits",()=>{assert.match(sql,/'invoice:'\|\|p_invoice_id/);assert.match(sql,/on conflict do nothing/);assert.match(sql,/credits=100,/);assert.doesNotMatch(sql,/credits=credits\+100/);assert.match(sql,/revoke all on function .* from public,anon,authenticated/);});
